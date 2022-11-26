@@ -5,17 +5,15 @@ from pylab import cm
 import sys
 
 
-A = np.ones(10).reshape(2, 5)
+x = np.array([1,2,12,34,23,12,3532,123,32,4, 12, 9]).reshape(3, 4, 1)
 
-B=np.array([[1,2,3],[3,1,4]])
-
-A[np.repeat(np.arange(2), 3), B.flatten()] = 0
-
-C = np.ones(10).reshape(2,5) + 1
-
-C = np.where(A == 0, 0, C)
-
-print(A)
+print(x)
+microB = np.sum(x, axis = 0) / x.shape[0]
+sigmaB = np.sum((x - microB) ** 2, axis = 0) / x.shape[0]
+normalize_x = (x - microB) / np.sqrt(sigmaB + 1e-12)
+print(sigmaB)
+y = normalize_x 
+print(y)
 
 
 
