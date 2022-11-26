@@ -16,7 +16,7 @@ def sigmoid(x):
 vsigmoid = np.vectorize(sigmoid)
 
 #変数の用意
-parameters = np.load("parameter2.npz")
+parameters = np.load("parameter.npz")
 W1 = parameters['arr_0']
 W2 = parameters['arr_1']
 b1 = parameters['arr_2']

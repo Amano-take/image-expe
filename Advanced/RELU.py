@@ -5,17 +5,6 @@ from pylab import cm
 import sys
 
 
-#活性化関数
-def sigmoid(x):
-    sigmoid_range = 34.53877639410684
-
-    if x <= -sigmoid_range:
-        return 1e-15
-    if x >= sigmoid_range:
-        return 1.0 - 1e-15
-    return 1.0 / ( 1.0 + np.exp(-x))
-
-vsigmoid = np.vectorize(sigmoid)
 
 #変数の用意
 #randseed
@@ -71,13 +60,14 @@ for i in range(num):
         
         #中間層への入力
         input1 = np.matmul(W1, img) + b1
+        #input1.shape -> B * M * 1
         #中間層の出力
-        #オーバーフロー対策
-        output1 = vsigmoid(input1)
+        #relu関数
+        output1 = np.where(input1 <= 0, 0, input1)
 
         #最終層への入力
         input2 = np.matmul(W2, output1) + b2
-        #print(input2.shape) -> 100 * 10 * 1
+            #print(input2.shape) -> B * C * 1
         #最終層の出力
         alpha = np.repeat(input2.max(axis = 1), C, axis= 1).reshape(B, C, 1)
         sumexp = np.repeat(np.sum(np.exp(input2 - alpha), axis=1), 10, axis=1).reshape(B, C, 1)
@@ -85,20 +75,20 @@ for i in range(num):
         output_last = np.exp(input2 - alpha) / sumexp
 
         #クロスエントロピー
-        crossE += (-1/B)* np.sum(onehot * np.log(output_last))
+        crossE += (-1/B)* np.sum(onehot * np.log(output_last + 1e-12))
 
         #微分
         #ソフト+クロスエントロピー
         delta_b = ((output_last - onehot)/B).reshape(B, C).T
-            #print(delta_b.shape) -> 10, 100
+            #print(delta_b.shape) -> C * B
         #中間層~最終層
         delta_y1 = np.dot(W2.T, delta_b)
             #print(delta_y1.shape) ->  * 100
         delta_W2 = np.dot(delta_b, output1.reshape(B, M))
         delta_b2 = np.sum(delta_b, axis = 1).reshape(C, 1)
-        #シグモイド関数
-        delta_a = delta_y1 * (1 - output1.reshape(B, M).T) * output1.reshape(B, M).T
-            #print(delta_a.shape) -> C * B
+        #RELU関数
+        delta_a = delta_y1 * (np.where(input1 <= 0, 0, 1).reshape(B, M).T)
+            #print(delta_a.shape) -> M * B
         #入力層~中間層
         delta_x = np.matmul(W1.T, delta_a)
         delta_W1 = np.matmul(delta_a, img.reshape(B, img_size))
@@ -109,11 +99,11 @@ for i in range(num):
         b1 = b1 - my * delta_b1
         W2 = W2 - my * delta_W2
         b2 = b2 - my * delta_b2
+    #このエポックでの平均クロスエントロピー
     crossE = crossE / epoch
     print(crossE)
-
-if(crossE < previouscrossE):
-    np.savez("parameter", W1, W2, b1, b2)
+    if(crossE < previouscrossE):
+        np.savez("parameter_relu", W1, W2, b1, b2)
 
 
 

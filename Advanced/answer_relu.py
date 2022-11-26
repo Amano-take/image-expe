@@ -17,7 +17,7 @@ def sigmoid(x):
 
 vsigmoid = np.vectorize(sigmoid)
 
-parameters = np.load("parameter.npz")
+parameters = np.load("parameter_relu.npz")
 W1 = parameters['arr_0']
 W2 = parameters['arr_1']
 b1 = parameters['arr_2']
@@ -48,7 +48,7 @@ img = before_conv.reshape((B, img_size, 1))
 #中間層への入力
 input1 = np.matmul(W1, img) + b1
 #中間層の出力
-output1 = vsigmoid(input1)
+output1 = np.where(input1 <= 0, 0, input1)
 #print(output1.shape)->100*100*1
 
 #最終層への入力
