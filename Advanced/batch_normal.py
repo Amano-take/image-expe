@@ -9,6 +9,9 @@ class Batch():
     #バッチ画像取得
     X = mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz")
     Y = mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz")
+    img_width = X.shape[1]
+    img_height = X.shape[2]
+    img_size = X[0].size
     
     #randseed
     seed = 601
@@ -22,15 +25,18 @@ class Batch():
     #バッチサイズ
     B = 100
     #学習率
-    my = 0.01
+    my = 0.015
     #エポック
     epoch = X.shape[0] // B
     #エポック繰り返し
-    num = 100
+    num = 30
+
+    #微小定数
+    eps = 1e-12
     
     def __init__(self, i):
-        self.ganma = 1
-        self.beta = 0
+        self.ganma = np.ones(Batch.M).reshape(Batch.M,1)
+        self.beta = np.zeros(Batch.M).reshape(Batch.M,1)
         
         if(i == 0):
             self.study()
@@ -53,12 +59,13 @@ class Batch():
     def normalize(self, x):
         #0次元方向をバッチと想定
         # x = B * ...
-        microB = np.sum(x, axis = 0) / x.shape[0]
-        sigmaB = np.sum((x - microB) ** 2, axis = 0) / x.shape[0]
-        normalize_x = (x - microB) / np.sqrt(sigmaB + 1e-12)
-        y = self.ganma * normalize_x + self.beta
+        self.microB = np.sum(x, axis = 0) / x.shape[0]
+        self.sigmaB = np.sum((x - self.microB) ** 2, axis = 0) / x.shape[0]
+        self.normalize_x = (x - self.microB) / np.sqrt(self.sigmaB + Batch.eps)
+        self.y = self.ganma * self.normalize_x + self.beta
+
         #yをreturn
-        return y
+        return self.y
 
     def study(self):
         B = Batch.B
@@ -66,7 +73,7 @@ class Batch():
         C = Batch.C
         img_size = Batch.img_size
         num = Batch.num
-        msk_num = Batch.msk_num
+        epoch = Batch.epoch
         my = Batch.my
 
         #クロスエントロピー
@@ -79,7 +86,7 @@ class Batch():
         for i in range(num):
             #1エポック
             previouscrossE = crossE
-            for j in range(Batch.epoch):
+            for j in range(epoch):
                 #バッチサイズだけランダムに0~59999を選択
                 batch_random = np.random.randint(0, 60000, B) 
                 #画像取得       
@@ -95,18 +102,23 @@ class Batch():
                 #行列の変形
                 img = before_conv.reshape((B, img_size, 1))
 
-                #(中間層）活性化層に入る前に正規化 ... 雑に調べた結果活性化層の前に正規化層を入れるっぽい...?
-                img = self.normalize(img)
+                
                 
                 #中間層への入力
-                input1 = np.matmul(W1, img) + b1
+                
+                input1_prime = np.matmul(W1, img) + b1
+                #print(input1_prime.shape) -> B * M * 1
+                #(中間層）活性化層に入る前に正規化 ... 雑に調べた結果活性化層の前に正規化層を入れるっぽい...?
+                input1 = self.normalize(input1_prime)
+                #print(input1.shape) -> B * M * 1
+
                 #中間層の出力 (mask)
                 #オーバーフロー対策済み
                 output1 = Batch.vsigmoid(input1)
 
                 #最終層への入力
                 input2 = np.matmul(W2, output1) + b2
-                #print(input2.shape) -> 100 * 10 * 1
+                #print(input2.shape) -> B * C * 1
                 #最終層の出力
                 alpha = np.repeat(input2.max(axis = 1), C, axis= 1).reshape(B, C, 1)
                 sumexp = np.repeat(np.sum(np.exp(input2 - alpha), axis=1), 10, axis=1).reshape(B, C, 1)
@@ -119,18 +131,22 @@ class Batch():
                 #微分
                 #ソフト+クロスエントロピー
                 delta_b = ((output_last - onehot)/B).reshape(B, C).T
-                    #print(delta_b.shape) -> 10, 100
+                #print(delta_b.shape) -> C * B
                 #中間層~最終層
                 delta_y1 = np.dot(W2.T, delta_b)
-                    #print(delta_y1.shape) ->  * 100
+                #print(delta_y1.shape) -> M * B
                 delta_W2 = np.dot(delta_b, output1.reshape(B, M))
                 delta_b2 = np.sum(delta_b, axis = 1).reshape(C, 1)
                 #シグモイド関数
                 delta_a_prime = delta_y1 * (1 - output1.reshape(B, M).T) * output1.reshape(B, M).T
-                    #print(delta_a.shape) -> C * B
+                #print(delta_a_prime.shape) -> M * B
                 #正規化部分
                 delta_xi_head = delta_a_prime * self.ganma
-                delta_sigmaB2 = 
+                delta_sigmaB2 = np.sum(delta_xi_head * (input1_prime.reshape(B, M).T - self.microB) * (-1/2) * np.power(self.sigmaB + Batch.eps, -3/2), axis = 1).reshape(M, 1)
+                delta_microB = np.sum(delta_xi_head * (-1 / np.power(self.sigmaB + Batch.eps, 1/2)), axis = 1).reshape(M, 1) + (-2) * delta_sigmaB2 * np.sum(input1_prime.reshape(B, M).T - self.microB, axis = 1).reshape(M, 1)
+                delta_a = delta_xi_head * np.power(self.sigmaB + Batch.eps, -1/2) + delta_sigmaB2 * 2 * (input1_prime.reshape(B, M).T - self.microB) / B + delta_microB / B
+                delta_ganma = np.sum(delta_a_prime * self.normalize_x.reshape(B, M).T, axis = 1).reshape(M, 1)
+                delta_beta = np.sum(delta_a_prime, axis = 1).reshape(M, 1)
                 #入力層~中間層
                 delta_x = np.matmul(W1.T, delta_a)
                 delta_W1 = np.matmul(delta_a, img.reshape(B, img_size))
@@ -141,36 +157,58 @@ class Batch():
                 b1 = b1 - my * delta_b1
                 W2 = W2 - my * delta_W2
                 b2 = b2 - my * delta_b2
+                self.ganma = self.ganma - my * delta_ganma
+                self.beta = self.beta - my * delta_beta
             crossE = crossE / Batch.epoch
             print(crossE)
 
             if(crossE < previouscrossE):
-                np.savez("parameter_Batch", W1, W2, b1, b2)
+                np.savez("parameter_Batch", W1, W2, b1, b2, self.ganma, self.beta)
     
+    def normalize_test(self, x, ganma, beta):
+        microB = np.sum(x, axis = 0) / x.shape[0]
+        sigmaB = np.sum((x - microB) ** 2, axis = 0) / x.shape[0]
+        y = ganma * np.power(sigmaB + Batch.eps, -1/2) * x + ( beta - ganma * microB * np.power(sigmaB + Batch.eps, -1/2))
+
+        #yをreturn
+        return y
+
+
     def test(self):
         parameters = np.load("parameter_Batch.npz")
         W1 = parameters['arr_0']
         W2 = parameters['arr_1']
         b1 = parameters['arr_2']
         b2 = parameters['arr_3']
+        ganma = parameters['arr_4']
+        beta = parameters['arr_5']
 
-        Xtest = mnist.download_and_parse_mnist_file("t10k-images-idx3-ubyte.gz")
-        Ytest = mnist.download_and_parse_mnist_file("t10k-labels-idx1-ubyte.gz")
+        #Xtest = mnist.download_and_parse_mnist_file("t10k-images-idx3-ubyte.gz")
+        #Ytest = mnist.download_and_parse_mnist_file("t10k-labels-idx1-ubyte.gz")
         #Xtest = mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz")
         #Ytest = mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz")
+        list_arr = []
+        with open("./contest/le4MNIST_X.txt") as f:
+            for line in f:
+                line = line.rstrip()
+                l = line.split()
+                arr = list(map(int, l))
+                list_arr.append(arr)
+
+        Xtest = np.array(list_arr)
         M = Batch.M
         C = Batch.C
         before_conv = np.array(Xtest)
         B = before_conv.shape[0]
-        answer = np.array(Ytest)
+        #answer = np.array(Ytest)
         img_size = before_conv[1].size
         img = before_conv.reshape((B, img_size, 1))
 
         #中間層への入力
-        input1 = np.matmul(W1, img) + b1
+        input1_prime = np.matmul(W1, img) + b1
+        input1 = self.normalize_test(input1_prime, ganma, beta)
         #中間層の出力
-        output1 = Batch.vsigmoid(input1) * (1 - Batch.msk_num/M)
-        #print(output1.shape)->100*100*1
+        output1 = Batch.vsigmoid(input1)
 
         #最終層への入力
         input2 = np.matmul(W2, output1) + b2
@@ -185,13 +223,15 @@ class Batch():
         #尤度最大値を取得
         mis_list = []
         expect = np.argmax(output_last, axis=1)
-        num_correct = 0
-        for i, ans in enumerate(answer):
-            if ans == expect[i]:
-                num_correct = num_correct + 1
-            else:
-                mis_list.append(i)
-        print(num_correct* 100 / B)
+        np.savetxt("./contest/answer.txt", expect, fmt="%.0f")
+
+        for i in range(20):
+            print("1~9999")
+            string_idx = input()
+            idx = int(string_idx)
+            plt.imshow(Xtest[idx].reshape(28,28), cmap=cm.gray)
+            plt.show()
+            print(expect[idx])
 
 print("study -> 0, test -> 1")
 a = int(input())

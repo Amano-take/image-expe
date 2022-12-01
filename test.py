@@ -6,6 +6,7 @@ import sys
 
 
 x = np.array([1,2,12,34,23,12,3532,123,32,4, 12, 9]).reshape(3, 4, 1)
+print(np.sum(x, axis = 0).shape)
 
 print(x)
 microB = np.sum(x, axis = 0) / x.shape[0]
