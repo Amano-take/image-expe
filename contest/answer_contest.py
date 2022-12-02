@@ -26,13 +26,11 @@ def normalize_test(x, ganma, beta):
     return y
 
 
-parameters = np.load("parameter_Batch.npz")
+parameters = np.load("./Parameters/Adam.npz")
 W1 = parameters['arr_0']
 W2 = parameters['arr_1']
 b1 = parameters['arr_2']
 b2 = parameters['arr_3']
-ganma = parameters['arr_4']
-beta = parameters['arr_5']
 
 list_arr = []
 
@@ -54,8 +52,7 @@ img_size = before_conv[1].size
 img = before_conv.reshape((B, img_size, 1))
 
 #中間層への入力
-input1_prime = np.matmul(W1, img) + b1
-input1 = normalize_test(input1_prime, ganma, beta)
+input1 = np.matmul(W1, img) + b1
 #中間層の出力
 output1 = vsigmoid(input1)
 
@@ -73,11 +70,11 @@ output_last = np.reshape(output_last, (B, C))
 expect = np.argmax(output_last, axis=1)
 np.savetxt("./contest/answer.txt", expect, fmt="%.0f")
 
-"""
+
 for i in range(20):
     print("1~9999")
     string_idx = input()
     idx = int(string_idx)
     plt.imshow(Xtest[idx].reshape(28,28), cmap=cm.gray)
     plt.show()
-"""
+    print(expect[idx])
