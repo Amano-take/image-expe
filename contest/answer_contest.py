@@ -68,7 +68,7 @@ output_last = np.reshape(output_last, (B, C))
 
 #尤度最大値を取得
 expect = np.argmax(output_last, axis=1)
-np.savetxt("./contest/answer.txt", expect, fmt="%.0f")
+np.savetxt("./contest/predict.txt", expect, fmt="%.0f")
 
 
 for i in range(20):
