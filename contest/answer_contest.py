@@ -25,12 +25,20 @@ def normalize_test(x, ganma, beta):
     #yをreturn
     return y
 
+def normalize_one(x):
+        #x = B * 784 * 1
+        microx = (np.sum(x, axis = 1) / x.shape[1]).reshape(x.shape[0], 1, 1)
+        sigmax = (np.sum((x - microx) ** 2, axis = 1) / x.shape[0]).reshape(x.shape[0], 1, 1)
+        return (x - microx) / np.sqrt(sigmax)
 
-parameters = np.load("./Parameters/Adam.npz")
+
+parameters = np.load("./Parameters/normalize_Adam.npz")
 W1 = parameters['arr_0']
 W2 = parameters['arr_1']
 b1 = parameters['arr_2']
 b2 = parameters['arr_3']
+beta = parameters['arr_4']
+ganma = parameters['arr_5']
 
 list_arr = []
 
@@ -41,18 +49,32 @@ with open("./contest/le4MNIST_X.txt") as f:
             arr = list(map(int, l))
             list_arr.append(arr)
 
+list_ans = []
+
+with open("./contest/answer.txt") as f:
+        for line in f:
+            line = line.rstrip()
+            arr = list(map(int, line))
+            list_ans.append(arr)
+
+
 Xtest = np.array(list_arr)
+Ytest = np.array(list_ans)
+#Xtest = mnist.download_and_parse_mnist_file("t10k-images-idx3-ubyte.gz")
+#Ytest = mnist.download_and_parse_mnist_file("t10k-labels-idx1-ubyte.gz")
 #Xtest = mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz")
 #Ytest = mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz")
 M = 80
 C = 10
 before_conv = np.array(Xtest)
 B = before_conv.shape[0]
-img_size = before_conv[1].size
+img_size = before_conv.shape[1]
 img = before_conv.reshape((B, img_size, 1))
+img = normalize_one(img)
 
 #中間層への入力
-input1 = np.matmul(W1, img) + b1
+input1_prime = np.matmul(W1, img) + b1
+input1 = normalize_test(input1_prime, ganma, beta)
 #中間層の出力
 output1 = vsigmoid(input1)
 
@@ -68,13 +90,13 @@ output_last = np.reshape(output_last, (B, C))
 
 #尤度最大値を取得
 expect = np.argmax(output_last, axis=1)
-np.savetxt("./contest/predict.txt", expect, fmt="%.0f")
+np.savetxt("./contest/predict_normalize.txt", expect, fmt="%.0f")
 
 
-for i in range(20):
-    print("1~9999")
-    string_idx = input()
-    idx = int(string_idx)
-    plt.imshow(Xtest[idx].reshape(28,28), cmap=cm.gray)
-    plt.show()
-    print(expect[idx])
+num_correct = 0
+for i, an in enumerate(Ytest):
+    if an == expect[i]:
+        num_correct += 1
+print(num_correct  * 100 / B)
+
+

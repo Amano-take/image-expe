@@ -25,11 +25,11 @@ class Batch():
     #バッチサイズ
     B = 100
     #学習率
-    my = 0.015
+    my = 0.01
     #エポック
     epoch = X.shape[0] // B
     #エポック繰り返し
-    num = 30
+    num = 50
 
     #微小定数
     eps = 1e-12
@@ -112,7 +112,7 @@ class Batch():
                 input1 = self.normalize(input1_prime)
                 #print(input1.shape) -> B * M * 1
 
-                #中間層の出力 (mask)
+                #中間層の出力
                 #オーバーフロー対策済み
                 output1 = Batch.vsigmoid(input1)
 
@@ -163,7 +163,7 @@ class Batch():
             print(crossE)
 
             if(crossE < previouscrossE):
-                np.savez("parameter_Batch", W1, W2, b1, b2, self.ganma, self.beta)
+                np.savez("./Parameters/normalize", W1, W2, b1, b2, self.beta, self.ganma)
     
     def normalize_test(self, x, ganma, beta):
         microB = np.sum(x, axis = 0) / x.shape[0]
@@ -175,27 +175,20 @@ class Batch():
 
 
     def test(self):
-        parameters = np.load("parameter_Batch.npz")
+        parameters = np.load("./Parameters/normalize.npz")
         W1 = parameters['arr_0']
         W2 = parameters['arr_1']
         b1 = parameters['arr_2']
         b2 = parameters['arr_3']
-        ganma = parameters['arr_4']
-        beta = parameters['arr_5']
+        beta = parameters['arr_4']
+        ganma = parameters['arr_5']
 
         #Xtest = mnist.download_and_parse_mnist_file("t10k-images-idx3-ubyte.gz")
         #Ytest = mnist.download_and_parse_mnist_file("t10k-labels-idx1-ubyte.gz")
-        #Xtest = mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz")
-        #Ytest = mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz")
-        list_arr = []
-        with open("./contest/le4MNIST_X.txt") as f:
-            for line in f:
-                line = line.rstrip()
-                l = line.split()
-                arr = list(map(int, l))
-                list_arr.append(arr)
+        Xtest = mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz")
+        Ytest = mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz")
 
-        Xtest = np.array(list_arr)
+
         M = Batch.M
         C = Batch.C
         before_conv = np.array(Xtest)
@@ -223,15 +216,13 @@ class Batch():
         #尤度最大値を取得
         mis_list = []
         expect = np.argmax(output_last, axis=1)
-        np.savetxt("./contest/answer.txt", expect, fmt="%.0f")
+        
 
-        for i in range(20):
-            print("1~9999")
-            string_idx = input()
-            idx = int(string_idx)
-            plt.imshow(Xtest[idx].reshape(28,28), cmap=cm.gray)
-            plt.show()
-            print(expect[idx])
+        num_correct = 0
+        for i, ans in enumerate(Ytest):
+            if ans == expect[i]:
+                num_correct = num_correct + 1
+        print(num_correct * 100 / B)
 
 print("study -> 0, test -> 1")
 a = int(input())
