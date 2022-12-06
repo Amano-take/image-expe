@@ -7,6 +7,24 @@ import sys
 
 eps = 1e-12
 
+def conv2D_prime(x, W, R, b):
+    #filterの形で持たずに常にWで持ってもよい
+    r = R // 2
+    x_prime = np.pad(x, [(0,), (r,), (r,)], "constant")
+    X = x2X(x_prime, R)
+    Y = np.dot(W, X)  + b
+    return X, Y
+
+def x2X(x, R):
+    B, x_length, x_width = x.shape
+    dx = x_length - R + 1
+    dy = x_width - R + 1
+    altx = np.zeros((B, R, R, dx, dy))
+    for i in range(R):
+        for j in range(R):
+            altx[:, i, j, :, :] = x[:, i:i+dx, j:j+dy]
+    return altx.transpose(1, 2, 0, 3, 4).reshape(R*R, dx*dy*B)
+
 @np.vectorize
 def vsigmoid(x):
     sigmoid_range = 34.53877639410684
@@ -32,13 +50,15 @@ def normalize_one(x):
         return (x - microx) / np.sqrt(sigmax)
 
 
-parameters = np.load("./Parameters/normalize_Adam.npz")
+parameters = np.load("./Parameters/conv_Adam.npz")
 W1 = parameters['arr_0']
 W2 = parameters['arr_1']
 b1 = parameters['arr_2']
 b2 = parameters['arr_3']
 beta = parameters['arr_4']
 ganma = parameters['arr_5']
+W_filter = parameters['arr_6']
+b_filter = parameters['arr_7']
 
 list_arr = []
 
@@ -58,7 +78,7 @@ with open("./contest/answer.txt") as f:
             list_ans.append(arr)
 
 
-Xtest = np.array(list_arr)
+Xtest = np.array(list_arr[0:100])
 Ytest = np.array(list_ans)
 #Xtest = mnist.download_and_parse_mnist_file("t10k-images-idx3-ubyte.gz")
 #Ytest = mnist.download_and_parse_mnist_file("t10k-labels-idx1-ubyte.gz")
@@ -71,6 +91,8 @@ B = before_conv.shape[0]
 img_size = before_conv.shape[1]
 img = before_conv.reshape((B, img_size, 1))
 img = normalize_one(img)
+_, img = conv2D_prime(img, W_filter, 3, b_filter)
+img = img.reshape(B, img_size, 1)
 
 #中間層への入力
 input1_prime = np.matmul(W1, img) + b1
@@ -90,7 +112,7 @@ output_last = np.reshape(output_last, (B, C))
 
 #尤度最大値を取得
 expect = np.argmax(output_last, axis=1)
-np.savetxt("./contest/predict_normalize.txt", expect, fmt="%.0f")
+#np.savetxt("./contest/predict_normalize.txt", expect, fmt="%.0f")
 
 
 num_correct = 0
