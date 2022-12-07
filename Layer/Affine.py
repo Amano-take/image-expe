@@ -1,20 +1,22 @@
 import numpy as np
-import Adam
+from . import Adam
 
 #全結合層
 class Affine():
     #A -> Bの全結合層
-    def __init__(self, W, b):
-        #W行列, bバイアス
-        self.W = W
-        self.b = b
+    def __init__(self, A, B):
+        #W行列, bバイアス 
+        self.W = np.random.normal(loc=0, scale=np.sqrt(1/A), size=(B, A))
+        self.b = np.random.normal(loc=0, scale=np.sqrt(1/A), size=(B, 1))
         #ユニットの数
-        self.A = W.shape[1]
-        self.B = W.shape[0]
+        self.A = A
+        self.B = B
         #Adamインスタンス化
-        self.Wad = Adam.Adam(W)
-        self.bad = Adam.Adam(b)
-
+        self.Wad = Adam.Adam(self.W)
+        self.bad = Adam.Adam(self.b)
+    
+    def test(self, W, b, x):
+        return np.matmul(W, x) + b
 
     def prop(self, x):
         self.x = x

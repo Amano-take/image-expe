@@ -18,9 +18,9 @@ class Adam():
         self.t = self.t + 1
         self.m = Adam.beta1 * self.m + (1 - Adam.beta1) * delta
         self.v = Adam.beta2 * self.v + (1 - Adam.beta2) * delta * delta
-        m_head = self.m / (1 - np.power(self.beta1, self.t))
-        v_head = self.v / (1 - np.power(self.beta2, self.t))
-        W = self.para - Adam.alpha * m_head / \
-            (np.power(v_head, 1/2) + self.eps)
-        return W
+        m_head = self.m / (1 - np.power(Adam.beta1, self.t))
+        v_head = self.v / (1 - np.power(Adam.beta2, self.t))
+        self.para = self.para - Adam.alpha * m_head / \
+            (np.power(v_head, 1/2) + Adam.eps)
+        return self.para
         
