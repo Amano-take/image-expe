@@ -48,7 +48,7 @@ class test():
             "t10k-labels-idx1-ubyte.gz")
         imgl = X.shape[1]
         # 学習に関して
-        num = 13
+        num = 20
         epoch = X.shape[0] // B
         # crossE初期化
         crossE = 0
@@ -136,13 +136,13 @@ class test():
                 expect = np.argmax(output_last, axis=1)
                 for i, an in enumerate(ans):
                     if an == expect[i]:
-                        correct_num = correct_num + 1
-            print(correct_num)
-            if(correct_num < precorrect): 
+                        correctnum = correctnum + 1
+            print(correctnum)
+            if(correctnum < precorrect - 10): 
                 print("overfitting!")
                 break
 
-            print("finish!")
+        print("finish!")
 
     def test(self):
         # 層に関して
