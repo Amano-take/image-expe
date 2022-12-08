@@ -1,6 +1,7 @@
 import numpy as np
-from . import Adam
-
+import sys, os
+sys.path.append(os.path.dirname(__file__))
+import Adam
 #全結合層
 class Affine():
     #A -> Bの全結合層

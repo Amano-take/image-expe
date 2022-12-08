@@ -1,5 +1,7 @@
 import numpy as np
-from . import Adam
+import sys, os
+sys.path.append(os.path.dirname(__file__))
+import Adam
 
 class conv2D():
     def __init__(self, K, R, imglen, B):
@@ -38,8 +40,8 @@ class conv2D():
         x_prime = np.pad(x, [(0,), (r,), (r,)], "constant")
         self.X = self.x2X(x_prime, self.R)
         self.Y = np.dot(self.filter_W, self.X) + self.bias
-        # self.Y -> K * (imgsize * B)
-        self.Y = self.Y.reshape(self.K, self.B, self.imr, self.imr)
+        # self.Y -> K * (B * imgsize)
+        self.Y = self.Y.reshape(self.K, self.B, self.imr, self.imr).transpose(1, 0, 2, 3)
         return self.Y
 
     def back(self, delta):

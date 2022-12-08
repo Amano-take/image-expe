@@ -44,6 +44,7 @@ class test():
         #Layer
         Conv = Conv2D.conv2D(self.ch, self.filw, X.shape[1], B)
         pooling = Pooling.Pooling()
+        
         Affine1 = Affine.Affine(self.ch * (imgl // self.poolw) * (imgl // self.poolw), M)
         Bnormal = BatchNormalize.BatchNormalize(M)
         Sigmoid = Activate.Sigmoid()
@@ -57,6 +58,8 @@ class test():
                 outC = Conv.conv2D(Batch_img)
                 #プーリング
                 outP = pooling.pooling(outC, self.poolw)
+                #形変える
+                outP = outP.reshape(outP.shape[0], -1, 1)
                 #~中間層
                 outAf1 = Affine1.prop(outP)
                 #正規化
@@ -71,12 +74,18 @@ class test():
 
                 #学習
                 delta_outAf2 = SofCross.back()
+                #print(delta_outAf2.shape) -> C * M
                 delta_outS = Affine2.back(delta_outAf2)
+                #print(delta_outS.shape) -> M * B
                 delta_outN = Sigmoid.back(delta_outS)
+                #print(delta_outN.shape) -> M * B
                 delta_outAf1 = Bnormal.back(delta_outN)
+                #print(delta_outAf1.shape) -> M * B
                 delta_outP = Affine1.back(delta_outAf1)
+                #print(delta_outP.shape) -> (ch * imgsize) * B
                 delta_outC = pooling.back(delta_outP)
                 _ = Conv.back(delta_outC)
+                break
 
             crossE = crossE / epoch
             print(crossE)

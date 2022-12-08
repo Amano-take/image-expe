@@ -1,5 +1,7 @@
 import numpy as np
-from . import Adam
+import sys, os
+sys.path.append(os.path.dirname(__file__))
+import Adam
 
 class BatchNormalize():
     eps = 1e-8
