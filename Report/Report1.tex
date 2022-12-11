@@ -1,0 +1,142 @@
+\documentclass[a4paper,11pt]{jsarticle}
+
+
+% 数式
+\usepackage{amsmath,amsfonts}
+\usepackage{bm}
+% 画像
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{listings,jvlisting}
+\lstset{
+  basicstyle={\ttfamily},
+  identifierstyle={\small},
+  commentstyle={\smallitshape},
+  keywordstyle={\small\bfseries},
+  ndkeywordstyle={\small},
+  stringstyle={\small\ttfamily},
+  frame={tb},
+  breaklines=true,
+  columns=[l]{fullflexible},
+  numbers=left,
+  xrightmargin=0zw,
+  xleftmargin=3zw,
+  numberstyle={\scriptsize},
+  stepnumber=1,
+  numbersep=1zw,
+  lineskip=-0.5ex
+}
+
+\begin{document}
+
+\title{画像実験課題1}
+\author{1029323422 天野岳洋}
+\date{\today}
+\maketitle
+\clearpage
+
+\section{概要}
+課題1の内容はMNIST の画像 1 枚を入力とし, 3層ニューラルネットワークを用いて, 0～9 の値のう
+ち 1 つを出力するプログラムを作成せよ．というものである
+
+
+\section{要件定義}
+\begin{itemize}
+  \item キーボードから0~9999の整数iを入力として受け取り,mnistのテストデータのi番目
+        を三層ニューラルネットワークの入力とする.
+  \item 三層ニューラルネットワークの構造は以下のとおりである.なお中間層, 最終層のノードの数をMとする
+        \begin{enumerate}
+          \item 前処理: 画像のshapeを(28, 28)から(784,)に変更する
+          \item 一層目: 入力をそのまま出力とする
+          \item 全結合層1: shapeが(M, 784)である重みW1と(M,1)であるバイアスb1を用いる
+          \item 中間層: 活性化関数としてシグモイド関数を用いる
+          \item 全結合層2: shapeが(C, M), (C, 1)であること以外は3.と同じ
+          \item 出力層: 活性化関数としてソフトマックス関数を用いる
+          \item 後処理: 出力層の出力の中で最大値をとるものの位置を最終出力とする
+        \end{enumerate}
+  \item 三層ニューラルネットワークの最終出力である0～9の整数をprintする
+  \item 上の中で用いた変数W1, b1, W2, b2は適切な方法でランダムにとる.なおこのランダムシードはある値で固定する
+\end{itemize}
+
+\section{実装}
+このセクションではプログラムの作成方針と実際のコードを順に説明する。
+\subsection{準備}
+\begin{lstlisting}[caption=preparation]
+  import numpy as np
+  import mnist
+
+  M = 30
+  C = 10
+  seed = 10
+  np.random.seed(seed)
+  X = mnist.download_and_parse_mnist_file("t10k-images-idx3-ubyte.gz")
+\end{lstlisting}
+\par
+ここでは必要なパッケージのimportと中間層, 最終層, randomseedの設定を行っている.
+なお中間層の数は適当に取ったものであり,最終層の数は分類したいクラス(0～9)の数に等しい.
+そして,Xとして(?, 28, 28)のMNISTテストデータの画像配列を取得している.
+
+\subsection{標準入力}
+\begin{lstlisting}[caption=stdin]
+  print("0~" + str(len(X)-1))
+  idx = int(input())
+  before_conv = np.array(X[idx])
+\end{lstlisting}
+\par
+一行目では入力としてエラーにならないもの(listの長さより小さいもの)の範囲を表示している.
+その後、標準入力を受け取り整数化を行い, Xのidx番目を取得する.ここで標準入力として
+Xの長さ以上のものを受け取るとエラーだが、その際の処理は考えていない.
+
+\subsection{前処理}
+ここでは重みバイアスの初期化, 画像のshapeの変更を行っている。
+\begin{lstlisting}[caption=pre-processing]
+  img_size = before_conv.size
+  img = before_conv.reshape(img_size, 1)
+
+  W1 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(M, img_size))
+  b1 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(M, 1))
+  W2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, M))
+  b2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, 1))
+\end{lstlisting}
+\par
+まずimg\_sizeを取得する(=784).その後before\_convのshapeを(img\_size, 1)に変換したものを
+imgとして三層ニューラルネットワークに与える.ここでimgは(0, 0, 0, ...).Tのような形になっている。
+そして平均が0で分散が1/前層ノードの数となるようにランダムに重みバイアスを作成する.
+np.random.normalのscaleには標準偏差を入れるので√処理を行っている。
+
+\subsection{三層ニューラルネットワーク}
+
+\begin{lstlisting}[caption = 3NN]
+  input1 = np.dot(W1, img) + b1
+  output1 = 1/(1 + np.exp(-1 * input1))
+  input2 = np.dot(W2, output1) + b2
+  alpha = input2.max()
+  sumexp = np.sum(np.exp(input2 - alpha))
+  output_last = np.exp(input2 - alpha) / sumexp
+\end{lstlisting}
+\par
+全結合層1では入力をXとして$ Y = WX + b $を出力している.Yのshapeが(M, 1)となるようにW,bのshapeを定める.\\
+中間層では先ほどのYの全要素それぞれを入力xとして$Y = \frac{1}{1 + \mathrm{e}^{-x}} $を出力している.
+numpyではこの全要素に対して同一の関数を適用させるという動作を自動で実行するのでそのまま行列Xを入力としてよい.\\
+全結合層2は先ほどと同様である。
+出力層ではソフトマックスのalphaを取得し,ソフトマックス関数の分母を計算してから, それぞれの要素に対してソフトマックス関数を
+適用させている.
+\subsection{後処理}
+\begin{lstlisting}[caption=after-processing]
+  answer = np.argmax(output_last)
+  print(answer)
+\end{lstlisting}
+output\_lastは次のようなものである.\\
+$$output\_last = [0.1, 0.05, 0.2, ....].T$$\\
+この行列の意味は0番目の0.1は入力の数字が0である確率が0.1であることを意味しており,
+この行列の最大値をとる位置が3NNによって推論された数字である.なのでnp.argmaxの出力が推論された数字そのものである.
+最後にその数字をprintしている.
+\section{実際の動作}
+\begin{lstlisting}[caption=result]
+  0~9999
+  0 
+  9
+\end{lstlisting}
+0～9999が表示され、0を標準入力として与えたものである。そして9が標準出力として得られた。
+このように期待していた通りの結果となった。
+
+\end{document}

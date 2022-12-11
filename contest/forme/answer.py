@@ -14,11 +14,11 @@ with open("./contest/le4MNIST_X.txt") as f:
 
 Xtest = np.array(list_arr)
 answer = []
-for i in range(100):
-    plt.imshow(Xtest[i].reshape(28,28), cmap=cm.gray)
+for i in range(50):
+    plt.imshow(Xtest[ 4*i:4*i + 4].reshape(2, 2,28,28).transpose(0, 2, 1, 3).reshape(56, 56), cmap=cm.gray)
     plt.show()
-    string_idx = input()
-    idx = int(string_idx)
-    answer.append(idx)
+    string_idx = input().split(",")
+    idx = list(map(int, string_idx))
+    answer.extend(idx)
 
-np.savetxt("./contest/answer.txt", answer, fmt="%.0f")
+np.savetxt("./contest/answer2.txt", answer, fmt="%.0f")

@@ -18,6 +18,11 @@ class Softmax_cross():
         self.ans_onehot = ans_onehot
         self.crossE = (-1/self.B) * np.sum(ans_onehot * np.log(self.y))
         return self.crossE
+    
+    def anserrate(self, ans):
+        output_last = np.reshape(self.y, (self.B, self.C))
+        expect = np.argmax(output_last, axis=1)
+        return np.count_nonzero(np.equal(ans, expect)) / self.B
 
     def back(self):
         #最終層を前提->deltaを受け取らない

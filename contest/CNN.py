@@ -5,10 +5,9 @@ from Layer import Affine
 from Layer import Activate
 from Layer import Softmax_cross
 from Layer import Initialize
-from Layer import Conv2D
+from Layer import Conv3D
 from Layer import Pooling
 from Layer import BatchNormalize
-
 
 def test(Xtest):
     #層に関して
@@ -36,7 +35,7 @@ def test(Xtest):
     epoch = Xtest.shape[0] // B
     img_size = Xtest[0].size
     correct_num = 0
-    Conv = Conv2D.conv2D(ch, filw, Xtest.shape[1], B)
+    Conv = Conv3D.Conv3D(ch, filw, Xtest.shape[1], B, 1)
     pooling = Pooling.Pooling()
     Affine1 = Affine.Affine(ch * (imgl // poolw) * (imgl // poolw), M)
     Bnormal = BatchNormalize.BatchNormalize(M)
@@ -45,11 +44,13 @@ def test(Xtest):
     SofCross = Softmax_cross.Softmax_cross()
     total_expect = np.array([])
     for i in range(epoch):
-        Batch_img = Ini.orderselect(i)
+        Batch_img = Ini.orderselect_contest(i)
+        Batch_img = Batch_img.reshape(B, 1, 28, 28)
         #画像畳み込み
         outC = Conv.test(Batch_img, filter_W, fil_bias)
         #プーリング
         outP = pooling.pooling(outC, poolw)
+        outP = outP.reshape(outP.shape[0], -1, 1)
         #~中間層
         outAf1 = Affine1.test(W1, b1, outP)
         #正規化
