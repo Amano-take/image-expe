@@ -15,18 +15,8 @@ from Layer import Diversify
 from Layer.ConAn import ConAn
 from Layer import Dropout
 from Layer.Imshow import Imshow
+from Layer.RandomArgumentation import RArg
 import numpy as np
-
-
-#Todo
-#Diversifyをより幅広く??Mixupを発見(実装のめど立たず)
-#randomcrop
-#cutoutf
-#Laberlsmoothing☆☆f
-#RELUにしてみる　f
-#data-argumentationを乱数で行う？？ -> オンラインあーぎゅめんテーションというらしい
-#Pooling幅拡大, ch数増加, M拡大
-
 
 
 class test():
@@ -35,13 +25,13 @@ class test():
         seed = 600
         np.random.seed(seed)
         self.B = 100
-        self.M = 300
+        self.M = 400
         self.C = 10
         self.poolw = 4
         self.ch = 16
         self.filw = 5
         self.phi = 0.5
-        self.smoothp = 0.2
+        self.smoothp = 0
         
 
         if a == 0:
@@ -56,12 +46,12 @@ class test():
         C = self.C
         # 画像データ
         #'''
-        di = Diversify.Diversify()
+        #di = Diversify.Diversify()
         X = np.array(mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz"))
         Y = np.array(mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz"))
         #cheat_X, cheat_Y = di.cheating()
-        afterX = di.expand(X)
-        afterY = np.repeat(Y, afterX.shape[0] // Y.shape[0], axis = 0)
+        #afterX = di.expand(X)
+        #afterY = np.repeat(Y, afterX.shape[0] // Y.shape[0], axis = 0)
         #最初100個を学習に使ってます。。。 -> 使わなくなりました！！
         #afterX = np.vstack((afterX, cheat_X))
         #afterY = np.hstack((afterY, cheat_Y))
@@ -71,17 +61,19 @@ class test():
         afterX = TeaXY["arr_0"]
         afterY = TeaXY["arr_1"]
         #'''
-        Ini = Initialize.Initialize(afterX, afterY, B, C, self.smoothp)
+        Ini = Initialize.Initialize(X, Y, B, C, self.smoothp)
         # 過学習制御用
         Xtest, Ytest = ConAn.get(0, 200)
-        imgl = afterX.shape[1]
+        
         # 学習に関して -> 過学習を検知して自動で止まるので大きく
         num = 100
-        epoch = afterX.shape[0]// B
+        imgl = X.shape[1]
+        epoch = X.shape[0]// B
         # crossE初期化
         crossE = 0
         correctnum = 0
         # Layer
+        ra = RArg(0.1, 20, np.pi/6, 5/4, 4/5, 5, np.pi/8, 5)
         Conv = Conv3D.Conv3D(self.ch, self.filw, imgl, B, 1)
         pooling = Pooling.Pooling()
         Affine1 = Affine.Affine(
@@ -96,6 +88,8 @@ class test():
             crossE = 0
             for j in range(epoch):
                 Batch_img, onehot, ans = Ini.labelSmoothing()
+                #argumentation
+                Batch_img = ra.prop(Batch_img)
                 Batch_img = Batch_img.reshape(self.B, 1, imgl, -1)
                 # 画像畳み込み
                 outC = Conv.prop(Batch_img)
@@ -143,7 +137,7 @@ class test():
             precorrect = correctnum 
             correctnum = 0
             #過学習判定
-            test = Initialize.Initialize(Xtest, Ytest, self.B, self.C)
+            test = Initialize.Initialize(Xtest, Ytest, self.B, self.C, self.smoothp)
             #テストデータB * 10仕様
             for i in range(Xtest.shape[0] // self.B):
                 Batch_img, ans = test.orderselect(i)
@@ -159,7 +153,7 @@ class test():
                 # 正規化
                 outN = Bnormal.prop(outAf1)
                 # 中間層
-                outS = Sigmoid.prop(outN)
+                outS = relu.prop(outN)
                 #ドロップアウト
                 outD = dropout.test(outS)
                 # ~最終層
@@ -169,11 +163,11 @@ class test():
                 print("contest_rate")
                 correctnum += SofCross.anserrate(ans)
             print(correctnum / 2)
-            if(correctnum < precorrect ): 
+            if(correctnum/2 > 0.95): 
                 print("overfitting!")
                 break
             else:
-                np.savez("./Parameters/CNN-2", Affine1.W, Affine1.b, Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
+                np.savez("./Parameters/CNN-4", Affine1.W, Affine1.b, Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
                          Conv.filter_W, Conv.bias)
         print("finish!")
 

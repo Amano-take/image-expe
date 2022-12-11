@@ -1,8 +1,11 @@
 import numpy as np
+import mnist
+import matplotlib.pyplot as plt
+from pylab import cm
 
 class RArg():
 
-    def __init__(self, gauss, cutlen, theta, exrate, shrate, mleng, squetheta):
+    def __init__(self, gauss, cutlen, theta, exrate, shrate, mleng, squetheta, wlen):
         #ガウシアンノイズ
         self.gauss = gauss
         #cutout
@@ -17,6 +20,8 @@ class RArg():
         self.mleng = mleng
         #スキュー角
         self.squetheta = squetheta
+        #ホワイトノイズ
+        self.wlen = wlen
 
     def prop(self, image):
         #平行移動, 回転, 拡大縮小, cutout, ガウシアンノイズ, スキューが1/5ずつで選ばれる
@@ -24,9 +29,9 @@ class RArg():
         choice = 6
         dice = np.random.randint(0, choice, (choice,))
         if(dice[0] == 0):
-            x, y = np.random.randint(-self.mleng, self.mlent, (2,))
+            x, y = np.random.randint(-self.mleng, self.mleng, (2,))
             image = self.translation(x, y, image)
-        if(dice[1] == 0):
+        if(dice[1] < 3):
             theta = np.random.uniform(-self.theta, self.theta)
             af = np.array([[np.cos(theta),-np.sin(theta)],
                         [np.sin(theta),np.cos(theta)]])
@@ -35,14 +40,20 @@ class RArg():
             xrate, yrate = np.random.uniform(self.shrate, self.exrate, (2,))
             af = np.array([xrate, 0, 0, yrate]).reshape(2,2)
             image = self.Affine_conv(image, af)
-        if(dice[3] == 0):
-            image = self.cutout(image, self.cutlen)
-        if(dice[4] == 0):
+        
+        if(dice[4] < 3):
             image = self.addnoise(image)
-        if(dice[5] == 0):
+        if(dice[5] < 2):
             xsque, ysque = np.random.uniform(-self.squetheta, self.squetheta, (2,))
-            af = np.array([1, np.tan(xsque), np.tan(ysque), 1])
+            af = np.array([1, np.tan(xsque), np.tan(ysque), 1]).reshape(2,2)
             image = self.Affine_conv(image, af)
+        if(dice[3] < 4):
+            image = self.cutout(image, self.cutlen)
+        elif(dice[3] > 4):
+            image = self.whitenoise(image, self.wlen)
+        elif(dice[3] == 4):
+            image = self.randomcrop(image)
+
         
         return image
 
@@ -89,14 +100,15 @@ class RArg():
         linear_weight['downright'] = upleft_diff[:,0]*upleft_diff[:,1]
         # imgを拡大(傾ける前の画像をpddingすることによって、参照できないということがないように)
         #img_big = np.pad(img, [0, (28,), (28,)], 'constant')
-        img_big = np.zeros([image.shape[0],len*3,len*3])
-        img_big[:,len:len*2,len:len*2] = image
+        img_big = np.zeros([image.shape[0],len*5,len*5])
+        img_big[:,len * 2:len*3,len*2:len*3] = image
 
         linear_with_weight = {}
         for direction in linear_xy.keys():
             xy = linear_xy[direction]
             weight = linear_weight[direction]
-            linear_with_weight[direction] = np.einsum('i,kij->ki',weight,img_big[:,xy[...,0]+len,xy[...,1]+len])
+            
+            linear_with_weight[direction] = np.einsum('i,ki->ki',weight,img_big[:,xy[...,0]+len*2,xy[...,1]+len*2])
 
         img_linear = sum(linear_with_weight.values()).reshape(image.shape[0], len,len)
         return img_linear
@@ -108,8 +120,34 @@ class RArg():
         a, b = np.random.randint(0, 28, (2,))
         big_img[:, a+len:a+len+cutlen, b+len:b+len+cutlen] = 0
         return big_img[:, len:len*2, len:len*2]
+    
+    def whitenoise(self, img, wlen):
+        B, len, _ = img.shape
+        c = np.max(img)
+        big_img = np.zeros((B, len*3, len*3))
+        big_img[:, len:len*2, len:len*2] = img
+        a, b = np.random.randint(0, 28, (2,))
+        x, y = np.random.randint(0, wlen, (2,))
+        big_img[:, a+len:a+len+x, b+len:b+len+y] = c
+        return big_img[:, len:len*2, len:len*2]
 
     def addnoise(self, img):
         B, len, _ = img.shape
-        noise = np.random.normal(loc=1, scale=self.noise, size=(B, len, len))
+        noise = np.random.normal(loc=1, scale=self.gauss, size=(B, len, len))
         return img * noise
+    
+    def randomcrop(self, img):
+        B, len, _ = img.shape
+        cropimage = np.zeros((B, len, len))
+        a, b = np.random.randint(4, 12, (2,))
+        len, wid = np.random.randint(5, 16, (2,))
+        cropimage[:, a:a+len, b:b+wid] = img[:, a:a+len, b:b+wid]
+        return cropimage
+
+"""
+X = np.array(mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz"))
+img = X[0].reshape(1, 28, 28)
+ra = RArg(0.1, 7, np.pi/3, 5/4, 4/5, 7, np.pi/8, 4) #sque角がでかいとエラー確認
+plt.imshow(ra.prop(img)[0], cmap =cm.gray)
+plt.show()
+#"""

@@ -36,6 +36,7 @@ class Initialize():
         answer = self.Y[i*self.B : (i+1)*self.B]
         return Batch_img, answer
 
+
     def orderselect_test(self, i):
         Batch_img = self.X[i*self.B : (i+1)*self.B]
         return Batch_img
