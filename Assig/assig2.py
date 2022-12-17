@@ -45,8 +45,8 @@ img = before_conv.reshape((B, img_size, 1))
 #ランダムな重みを作成
 W1 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(M, img_size))
 b1 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(M, 1))
-W2 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(C, M))
-b2 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(C, 1))
+W2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, M))
+b2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, 1))
 
 #中間層への入力
 input1 = np.matmul(W1, img) + b1

@@ -1,22 +1,35 @@
 import numpy as np
 import Adam
+import SAM
+import MomentumSGD
 
 class Conv3D():
 
-    def __init__(self, K, R, imglen, B, ch):
+    def __init__(self, K, R, imglen, B, ch, l2para, opt="Adam"):
         #filterはK * ch * R * R
         #入力はB *　ch * imglen * imglenを想定
+        self.l2lambda = l2para
         self.K = K
         self.R = R
         self.imr = imglen
         self.B = B
         self.ch = ch
         #フィルターの初期化
-        self.filter_W = np.random.normal(loc=0, scale=0.01, size=(K, R * R * ch))
+        self.filter_W = np.random.normal(loc=1/(R*R), scale=0.01, size=(K, R * R * ch))
         self.bias = np.repeat(np.random.normal(loc=0, scale=0.01, size=(K, 1)), imglen*imglen*B, axis=1)
         #
-        self.filAdam = Adam.Adam(self.filter_W)
-        self.biAdam = Adam.Adam(self.bias)
+        if(opt == "Adam"):
+            self.filAdam = Adam.Adam(self.filter_W)
+            self.biAdam = Adam.Adam(self.bias)
+        elif(opt == "MSGD"):
+            self.filAdam = MomentumSGD.MSGD(self.filter_W)
+            self.biAdam = MomentumSGD.MSGD(self.bias)
+        elif(opt == "SAM"):
+            self.filsam = SAM.SAM(self.filter_W)
+            self.bsam = SAM.SAM(self.bias)
+        elif(opt=="ADSGD"):
+            self.filAdam = MomentumSGD.ADSGD(self.filter_W)
+            self.biAdam = MomentumSGD.ADSGD(self.bias)
     
     #使う予定なし
     def fil2W(self, filter):
@@ -78,7 +91,53 @@ class Conv3D():
         Y = np.dot(filter_W, X) + bias
         return Y.reshape(self.K, self.B, self.imr, self.imr).transpose(1, 0, 2, 3)
 
+    def update(self, filter_W, bias):
+        self.filter_W = filter_W
+        self.bias = bias
+        return
 
+    def SAM_back1(self, delta):
+        delta = delta.transpose(1, 0, 2, 3).reshape(self.K, -1)
+        #delta -> K * (B * imlen * imlen)
+        delta_filter_x = np.matmul(self.filter_W.T, delta)
+        delta_filter_W = np.matmul(delta, self.X.T)
+        delta_filter_b = np.sum(delta, axis=0)
+        self.filter_W = self.filsam.calw(delta_filter_W)
+        self.bias = self.bsam.calw(delta_filter_b)
+        return self.X2x(delta_filter_x)[:, :, self.r:self.r + self.imr, self.r:self.r + self.imr]
+
+    def SAM_back2(self, delta):
+        delta = delta.transpose(1, 0, 2, 3).reshape(self.K, -1)
+        #delta -> K * (B * imlen * imlen)
+        delta_filter_x = np.matmul(self.filter_W.T, delta)
+        delta_filter_W = np.matmul(delta, self.X.T)
+        delta_filter_b = np.sum(delta, axis=0)
+        self.filter_W = self.filsam.update(delta_filter_W)
+        self.bias = self.bsam.update(delta_filter_b)
+        return self.X2x(delta_filter_x)[:, :, self.r:self.r + self.imr, self.r:self.r + self.imr]
+    
+    def back_ADSGD(self, delta, k):
+        #delta -> B * K * imlen * imlen
+        delta = delta.transpose(1, 0, 2, 3).reshape(self.K, -1)
+        #delta -> K * (B * imlen * imlen)
+        delta_filter_x = np.matmul(self.filter_W.T, delta)
+        delta_filter_W = np.matmul(delta, self.X.T)
+        delta_filter_b = np.sum(delta, axis=0)
+        self.filter_W = self.filAdam.update(delta_filter_W, k)
+        self.bias = self.biAdam.update(delta_filter_b, k)
+        return self.X2x(delta_filter_x)[:, :, self.r:self.r + self.imr, self.r:self.r + self.imr]
+
+    def back_l2(self, delta):
+        #delta -> B * K * imlen * imlen
+        delta = delta.transpose(1, 0, 2, 3).reshape(self.K, -1)
+        #delta -> K * (B * imlen * imlen)
+        delta_filter_x = np.matmul(self.filter_W.T, delta) 
+        delta_filter_W = np.matmul(delta, self.X.T) + 2 * self.l2lambda * self.filter_W
+        delta_filter_b = np.sum(delta, axis=0)+ 2 * self.l2lambda * self.bias
+        self.filter_W = self.filAdam.update(delta_filter_W)
+        self.bias = self.biAdam.update(delta_filter_b)
+        return self.X2x(delta_filter_x)[:, :, self.r:self.r + self.imr, self.r:self.r + self.imr]
+        
 '''
 con = Conv3D(3, 3, 4, 1, 2)
 x = np.arange(32).reshape(1, 2, 4, 4)

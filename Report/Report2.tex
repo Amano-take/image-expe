@@ -1,0 +1,183 @@
+\documentclass[a4paper,11pt]{jsarticle}
+
+
+% 数式
+\usepackage{amsmath,amsfonts}
+\usepackage{bm}
+% 画像
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{listings,jvlisting}
+\lstset{
+  basicstyle={\ttfamily},
+  identifierstyle={\small},
+  commentstyle={\smallitshape},
+  keywordstyle={\small\bfseries},
+  ndkeywordstyle={\small},
+  stringstyle={\small\ttfamily},
+  frame={tb},
+  breaklines=true,
+  columns=[l]{fullflexible},
+  numbers=left,
+  xrightmargin=0zw,
+  xleftmargin=3zw,
+  numberstyle={\scriptsize},
+  stepnumber=1,
+  numbersep=1zw,
+  lineskip=-0.5ex
+}
+
+\begin{document}
+
+\title{画像実験課題2}
+\author{1029323422 天野岳洋}
+\date{\today}
+\maketitle
+\clearpage
+
+\section{概要}
+課題1からコードを改良し,ミニバッチを入力可能とするように変更し,
+さらに,クロスエントロピー誤差を計算するプログラムを作成せよ.
+
+\section{要件定義}
+\begin{itemize}
+  \item MNISTの学習画像60000枚からランダムにB枚をミニバッチとして取り出す.
+  \item クロスエントロピー誤差の平均を標準出力に出力
+\end{itemize}
+
+\section{実装の方針}
+ミニバッチとしてランダムなB枚を取得するためには,0～59999からランダムな整数を
+B個並べて配列として,MNISTの学習画像から取得すればよい.このミニバッチの形は(B, 28, 28)
+となっている.これを行列計算が簡単な(B, 28*28, 1)の形に変更してあげる.なぜ簡単になるのかというと,
+np.matmulの定義から(M, 28*28)と(B, 28*28, 1)の行列積が(B, M, 1)として取得できるからである.
+これは,ミニバッチのそれぞれ一枚ずつに対して,重みをかけている作業を一回でできていることとなる.
+これで全結合層はクリアである.Sigmoid関数は(B, M, 1)のそれぞれ一つずつに対して同じ関数を適用させているので,
+これもまた簡単に実装が可能である.そして後述する方法でSoftmaxを適用させればミニバッチへの拡張は
+完了である.
+\par 
+クロスエントロピー誤差に関しては何らかの方法でonehot-vectorを作成し,クロスエントロピー誤差を計算し
+出力してやればよい.この方法は以降のセクションで詳細に述べる.
+
+\section{実装}
+\subsection*{各種準備}
+\begin{lstlisting}[caption=準備]
+  import numpy as np
+  import mnist
+  #randseed
+  seed = 601
+  M = 100
+  C = 10
+  B = 100
+  np.random.seed(seed)
+  X = mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz")
+  Y = mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz")
+  W1 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(M, img_size))
+  b1 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(M, 1))
+  W2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, M))
+  b2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, 1))
+\end{lstlisting}
+\par
+各種importと変数準備である.Bはミニバッチサイズである.
+そのほかの説明はレポート1で既に行った.
+
+\subsection*{ランダムミニバッチ作成}
+ミニバッチの作成手続きを行うコードをいかに示す.
+\begin{lstlisting}[caption=ミニバッチ]
+  #pattern1
+  batch_random = np.random.randint(0, 60000, B)
+  #pattern2
+  batch_random = np.random.choice(np.arange(0, 60000), B, replace = False)
+  before_conv = np.array(X[batch_random])
+  answer = np.array(Y[batch_random])
+\end{lstlisting}
+実装としては二つのパターンが考えられる.
+一つはミニバッチ内の重複を許すパターン.もう一つはミニバッチ内の重複を
+許さないパターン.上のコードのpattern1が許すパターンでpattern2が許さないパターンである.
+このようにして取得した,before\_conv, answerは(B, 28, 28), (B,)という形をしている.
+
+\subsection*{onehot-vector}
+onehot-vectorを作成する方法の説明である.コードは以下のとおりである.
+\begin{lstlisting}[caption=onehot-vector]
+  onehot = np.zeros((answer.size, 10))
+  onehot[np.arange(answer.size), answer] = 1
+\end{lstlisting}
+まずonehot-vectorの形を確認する.これは,ミニバッチの一枚に対して,
+9個の0と1個の1が並ぶ形となる.まずこの形(B, C)の形をした値がすべて0で
+ある行列を作る.
+\par 
+次に2行目で適切な場所を1に変えている.この作業を詳しく説明すると,
+まずanswer.sizeはBに等しい.つまり100である.なので,
+np.arange(answer.size)は[0,1,2,3,..., 99]という形をしている.
+次に,answerは(B,)であり,ミニバッチ一枚目の数字,二枚目の数字...が並んだ
+[6, 9, 3...]という形をしている.これら二つを用いて指定した場所を1にしている.さらに詳しく説明すると,
+ミニバッチ一枚目の六行目を1に, ミニバッチ二枚目の九行目を1に,...という作業をしていることとなる.
+
+\subsection*{ソフトマックス手前まで}
+三層NNの最後の層であるソフトマックス層までの実装方法について説明する.
+これは設計の方針で述べた通りの設計である.
+\begin{lstlisting}[caption=伝播1]
+  img = before_conv.reshape((B, img_size, 1))
+  input1 = np.matmul(W1, img) + b1
+  output1 = 1/(1 + np.exp(-1 * input1))
+  input2 = np.matmul(W2, output1) + b2
+\end{lstlisting}
+一行目では(B, 28, 28)から(B, 764, 1)へと形を変更している.
+次に全結合層では,np.matmulを用いることによって,ミニバッチに対して重みの
+行列積とバイアスの足し算を行っている.この説明を詳しく行いたいと思う.
+biasをひとまず無視する.この時すべき計算は次のとおりである.
+$$Y_{ij1} = \sum_{k} w_{jk} * x_{ik1}$$
+np.matmulでは片方が三次元以上であるならば,これを行列のスタックとして扱うと
+レファレンスに書いてあるので,まさに上の計算をやるにはnp.matmulが適切である.
+ほかに,次のやり方でもうまくいくはずである.
+\begin{lstlisting}[caption=別解]
+  Y = np.einsum("jk, ikl -> ijl", W, X)
+\end{lstlisting}
+シグモイド, 全結合層2の説明は省略する.
+
+\subsection*{ソフトマックス}
+このセクションではソフトマックス関数の実装を行う.
+ソフトマックス関数ではalphaが現れるので,単純な設計では
+うまくいかない.
+\begin{lstlisting}[caption=SoftMax]
+  alpha = np.repeat(input2.max(axis = 1), C, axis= 1).reshape(B, C, 1)
+  sumexp = np.repeat(np.sum(np.exp(input2 - alpha), axis=1), C, axis=1).reshape(B, C, 1)
+  output_last = np.exp(input2 - alpha) / sumexp
+  output_last = np.reshape(output_last, (B, C))
+\end{lstlisting}
+まずはalphaの生成から, alphaはミニバッチ内の各10の値から最大のものを取得するので,
+input2.max(axis = 1)が必要である.さらにalphaを用いた引き算が必要なので, 
+これを10回axis=1の方向にrepeatしてreshapeしてinput2と形を同じにする.
+以下の作業の簡略的なものは次のとおりである.
+$$
+input = \begin{bmatrix}
+  \begin{bmatrix}
+    0.1 \\
+    0.7 \\
+  \end{bmatrix} \\
+  \begin{bmatrix}
+    0.5 \\
+    0.4 \\
+  \end{bmatrix}
+\end{bmatrix}, alpha = \begin{bmatrix}
+  \begin{bmatrix}
+    0.7 \\
+    0.7 \\
+  \end{bmatrix} \\
+  \begin{bmatrix}
+    0.5 \\
+    0.5 \\
+  \end{bmatrix}
+\end{bmatrix}
+$$
+次に,このalphaを用いてsumexpを計算する.これもまた同様に,同じ形にした状態で
+計算を行う.こうすることによって,ソフトマックスが計算できるようになった.
+最後にonehot-vectorの形が(B, C)であるのでこの形に変形しておく.
+
+\subsection*{クロスエントロピー誤差}
+ここは定義通りであるので,説明は省略する.
+\begin{lstlisting}[caption=CrossEntropy]
+  print((-1/B)* np.sum(onehot * np.log(output_last)))
+\end{lstlisting}
+
+\section{実際の動作}
+
+\end{document}

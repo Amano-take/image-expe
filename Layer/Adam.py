@@ -5,7 +5,7 @@ class Adam():
     alpha = 0.001
     beta1 = 0.9
     beta2 = 0.999
-    eps = 1e-8
+    eps = 1e-12
     def __init__(self, para):
         #Adam学習用
         self.m = 0

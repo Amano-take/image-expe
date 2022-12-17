@@ -1,6 +1,7 @@
 import numpy as np
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+#from Advanced import CNN
 from Layer import BatchNormalize
 from Layer import Pooling
 from Layer import Conv3D
@@ -14,37 +15,35 @@ from Layer import Dropout
 from Layer.Imshow import Imshow
 from Layer.RandomArgumentation import RArg
 
+
 def test():
     #層に関して
     B = 100
-    M = 400
     C = 10
-    poolw = 4
-    ch = 16
+    poolw = 7
+    ch = 32
     filw = 5
     phi = 0.5
 
-    parameters = np.load("./Parameters/CNN-6-95.npz")
-    W1 = parameters['arr_0']
-    W2 = parameters['arr_2']
-    b1 = parameters['arr_1']
-    b2 = parameters['arr_3']
-    normal_beta = parameters['arr_4']
-    noraml_ganma = parameters['arr_5']
-    filter_W = parameters['arr_6']
-    fil_bias = parameters['arr_7']
+    parameters = np.load("./Parameters/CNN-2.npz")
+    W2 = parameters['arr_0']
+    b2 = parameters['arr_1']
+    normal_beta = parameters['arr_2']
+    noraml_ganma = parameters['arr_3']
+    filter_W = parameters['arr_4']
+    fil_bias = parameters['arr_5']
 
     Xtest = ConAn.gettest()
     Ini = Initialize.Initialize(Xtest, None, B, C, 0)
     
     imgl = Xtest.shape[1]
+    M = ch * (imgl // poolw) * (imgl // poolw)
 
     epoch = Xtest.shape[0] // B
     img_size = Xtest[0].size
 
     Conv = Conv3D.Conv3D(ch, filw, imgl, B, 1)
     pooling = Pooling.Pooling()
-    Affine1 = Affine.Affine(ch * (imgl // poolw) * (imgl // poolw), M)
     Bnormal = BatchNormalize.BatchNormalize(M)
     relu = Activate.Relu()
     dropout = Dropout.Dropout(phi, B, M)
@@ -59,10 +58,8 @@ def test():
         #プーリング
         outP = pooling.pooling(outC, poolw)
         outP = outP.reshape(outP.shape[0], -1, 1)
-        #~中間層
-        outAf1 = Affine1.test(W1, b1, outP)
         #正規化
-        outN = Bnormal.test(outAf1, normal_beta, noraml_ganma)
+        outN = Bnormal.test(outP, normal_beta, noraml_ganma)
         #中間層
         outS = relu.prop(outN)
         #ドロップアウトテスト

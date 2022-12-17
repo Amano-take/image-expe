@@ -1,7 +1,7 @@
 import numpy as np
 
 class Normalize():
-    def __init__():
+    def __init__(self):
         pass
     
     @staticmethod

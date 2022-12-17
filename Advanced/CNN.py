@@ -16,8 +16,14 @@ from Layer.ConAn import ConAn
 from Layer import Dropout
 from Layer.Imshow import Imshow
 from Layer.RandomArgumentation import RArg
+from Layer import Normalize
 import numpy as np
 
+#todo
+#Adamからの変更
+#足りてないアーギュメンテーションは？
+#アーギュメンテーションのハイパラ？
+#苦手な問題を繰り返し学習
 
 class test():
 
@@ -25,14 +31,20 @@ class test():
         seed = 600
         np.random.seed(seed)
         self.B = 100
-        self.M = 400
         self.C = 10
-        self.poolw = 4
-        self.ch = 16
+        #4だと学習が早くかなり汎化性能ある。2のメリット見つからず
+        #さらに大きく7!!!
+        self.poolw = 7
+        #8, 16, 4, 32　をためしてみる ->それほど変わらず,,
+        #ちょうどいいのは16, 32
+        self.ch = 32
+        #小さいほうがいいらしい？？
         self.filw = 5
         self.phi = 0.5
+        #逆効果
         self.smoothp = 0
-        
+        #l2正則化
+        self.l2lambda = 0.01
 
         if a == 0:
             self.study()
@@ -41,55 +53,53 @@ class test():
 
     def study(self):
         # 層に関して
-        B = self.B
-        M = self.M
-        C = self.C
-        # 画像データ
-        #'''
-        #di = Diversify.Diversify()
         X = np.array(mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz"))
         Y = np.array(mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz"))
-        #cheat_X, cheat_Y = di.cheating()
-        #afterX = di.expand(X)
-        #afterY = np.repeat(Y, afterX.shape[0] // Y.shape[0], axis = 0)
-        #最初100個を学習に使ってます。。。 -> 使わなくなりました！！
-        #afterX = np.vstack((afterX, cheat_X))
-        #afterY = np.hstack((afterY, cheat_Y))
-        #np.savez("./Parameters/teacher.npz", afterX, afterY)
-        '''
-        TeaXY = np.load("./Parameters/teacher.npz")
-        afterX = TeaXY["arr_0"]
-        afterY = TeaXY["arr_1"]
-        #'''
+        imgl = X.shape[1]
+        B = self.B
+        M = self.ch * (imgl // self.poolw) * (imgl // self.poolw)
+        C = self.C
         Ini = Initialize.Initialize(X, Y, B, C, self.smoothp)
-        # 過学習制御用
+        # 過学習制御用　-> 始め200個を使ってることになりますね(´;ω;｀)
         Xtest, Ytest = ConAn.get(0, 200)
         
         # 学習に関して -> 過学習を検知して自動で止まるので大きく
-        num = 100
-        imgl = X.shape[1]
+        # 実際に優秀なパラを得たのは手動のearly-stoppingでです
+        num = 1000
         epoch = X.shape[0]// B
-        # crossE初期化
+        # 初期化
         crossE = 0
         correctnum = 0
+        precorrectnum = 0
         # Layer
-        ra = RArg(0.1, 20, np.pi/6, 5/4, 4/5, 5, np.pi/8, 5)
-        Conv = Conv3D.Conv3D(self.ch, self.filw, imgl, B, 1)
+        #ここのハイパラは見てわかる程度に制限しています.
+        ra = RArg(20, 20, np.pi/4, 5/4, 10, np.pi/12, 5)
+        Conv = Conv3D.Conv3D(self.ch, self.filw, imgl, B, 1, opt="MSGD")
         pooling = Pooling.Pooling()
-        Affine1 = Affine.Affine(
-            self.ch * (imgl // self.poolw) * (imgl // self.poolw), M)
-        Bnormal = BatchNormalize.BatchNormalize(M)
+        Bnormal = BatchNormalize.BatchNormalize(M, opt="MSGD")
         relu = Activate.Relu()
         dropout = Dropout.Dropout(self.phi, B, M)
-        Affine2 = Affine.Affine(M, C)
+        Affine2 = Affine.Affine(M, C, "MSGD")
         SofCross = Softmax_cross.Softmax_cross()
+        #途中から学習
+        """
+        parameters = np.load("./Parameters/CNN-4.npz")
+        W2 = parameters['arr_0']
+        b2 = parameters['arr_1']
+        normal_beta = parameters['arr_2']
+        noraml_ganma = parameters['arr_3']
+        filter_W = parameters['arr_4']
+        fil_bias = parameters['arr_5']
+        Affine2.update(W2, b2)
+        Bnormal.update(normal_beta, noraml_ganma)
+        Conv.update(filter_W, fil_bias)"""
         for i in range(num):
             precrossE = crossE
             crossE = 0
             for j in range(epoch):
-                Batch_img, onehot, ans = Ini.labelSmoothing()
+                Batch_img, onehot, ans = Ini.randomselect()
                 #argumentation
-                Batch_img = ra.prop(Batch_img)
+                Batch_img = ra.prop2(Batch_img, i)
                 Batch_img = Batch_img.reshape(self.B, 1, imgl, -1)
                 # 画像畳み込み
                 outC = Conv.prop(Batch_img)
@@ -98,9 +108,8 @@ class test():
                 # 形変える
                 outP = outP.reshape(outP.shape[0], -1, 1)
                 # ~中間層
-                outAf1 = Affine1.prop(outP)
                 # 正規化
-                outN = Bnormal.prop(outAf1)
+                outN = Bnormal.prop(outP)
                 # 中間層
                 outS = relu.prop(outN)
                 # DropOut -> 汎化性能が上がる
@@ -110,8 +119,8 @@ class test():
                 # 最終層
                 finout = SofCross.prop(outAf2)
                 crossE = crossE + SofCross.crossEn(onehot)
-                if (j % (epoch // 3) == 0):
-                    print(SofCross.anserrate(ans))
+                """if (j % (epoch // 4) == 0):
+                    print(SofCross.anserrate(ans))"""
 
                 # 学習
                 delta_outAf2 = SofCross.back()
@@ -122,19 +131,17 @@ class test():
                 # print() -> M * B
                 delta_outN = relu.back(delta_outS)
                 # print(delta_outN.shape) -> M * B
-                delta_outAf1 = Bnormal.back(delta_outN)
+                delta_outP = Bnormal.back(delta_outN)
                 # print(delta_outAf1.shape) -> M * B
-                delta_outP = Affine1.back(delta_outAf1)
                 # print(delta_outP.shape) -> (ch * imgsize) * B
                 delta_outC = pooling.back(delta_outP.T)
                 _ = Conv.back(delta_outC)
 
             #1epoch終了
             crossE = crossE / epoch
-            print("1epoch終了", end=":")
+            print(str(i) + "epoch終了", end=":")
             print(crossE)
 
-            precorrect = correctnum 
             correctnum = 0
             #過学習判定
             test = Initialize.Initialize(Xtest, Ytest, self.B, self.C, self.smoothp)
@@ -148,10 +155,8 @@ class test():
                 outP = pooling.pooling(outC, self.poolw)
                 # 形変える
                 outP = outP.reshape(outP.shape[0], -1, 1)
-                # ~中間層
-                outAf1 = Affine1.prop(outP)
                 # 正規化
-                outN = Bnormal.prop(outAf1)
+                outN = Bnormal.prop(outP)
                 # 中間層
                 outS = relu.prop(outN)
                 #ドロップアウト
@@ -159,17 +164,20 @@ class test():
                 # ~最終層
                 outAf2 = Affine2.prop(outD)
                 # 最終層
-                finout = SofCross.prop(outAf2)
-                print("contest_rate")
+                finout = SofCross.prop(outAf2)   
                 correctnum += SofCross.anserrate(ans)
-            print(correctnum / 2)
-            if(correctnum/2 > 0.95): 
-                print("overfitting!")
-                break
-            else:
-                np.savez("./Parameters/CNN-4", Affine1.W, Affine1.b, Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
+            correctnum = correctnum / 2
+            print("contest_rate")
+            print(correctnum)
+            if(correctnum >= precorrectnum): 
+                print("更新!!")
+                np.savez("./Parameters/CNN-2", Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
                          Conv.filter_W, Conv.bias)
-        print("finish!")
+                np.savez("./Parameters/finout2", finout)
+                precorrectnum = correctnum
+                if(correctnum > 0.95):
+                    print("finish")
+                    break
 
     def test(self):
         # 層に関して
@@ -236,6 +244,11 @@ X = np.array(mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz"))
 Xtest = di.expand(X[0].reshape(1, 28, -1))
 Imshow.imshow(Xtest)
 #"""
+
 print("study -> 0, test -> 1")
 a = int(input())
-test(a)
+try:
+    test(a)
+except KeyboardInterrupt:
+    
+#"""

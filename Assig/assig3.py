@@ -6,7 +6,7 @@ import sys
 
 #変数の用意
 #randseed
-seed = 601
+seed = 209
 #中間層の数
 M = 80
 #最終層の数
@@ -32,15 +32,23 @@ num = 30
 #ランダムな重みを作成
 W1 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(M, img_size))
 b1 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(M, 1))
-W2 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(C, M))
-b2 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(C, 1))
+W2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, M))
+b2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, 1))
 
-for i in range(num):
+#ロードする場合
+"""parameters = np.load("./Parameters/parameter.npz")
+W1 = parameters['arr_0']
+W2 = parameters['arr_1']
+b1 = parameters['arr_2']
+b2 = parameters['arr_3']"""
+
+
+for i in range(5):
     #1エポック
     crossE = 0
     for j in range(epoch):
         #バッチサイズだけランダムに0~59999を選択
-        batch_random = np.random.randint(0, 60000, B) 
+        batch_random = np.random.randint(0, 60000, B)
         #画像取得       
         before_conv = np.array(X[batch_random])
         #print(before_conv.shape) -> 100 * 28 * 28
@@ -70,7 +78,7 @@ for i in range(num):
         output_last = np.exp(input2 - alpha) / sumexp
 
         #クロスエントロピー
-        crossE = (-1/B)* np.sum(onehot * np.log(output_last))
+        crossE += (-1/B)* np.sum(onehot * np.log(output_last))
 
         #微分
         #ソフト+クロスエントロピー
@@ -94,9 +102,9 @@ for i in range(num):
         b1 = b1 - my * delta_b1
         W2 = W2 - my * delta_W2
         b2 = b2 - my * delta_b2
-    print(crossE)
+    print(crossE / epoch)
 
-np.savez("parameter2", W1, W2, b1, b2)
+np.savez("./Parameters/parameter", W1, W2, b1, b2)
 
 
 
