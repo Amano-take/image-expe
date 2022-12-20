@@ -26,40 +26,39 @@ class RArg():
         #配列はアドレスわたし
         image = np.copy(img)
         dice = np.random.uniform(0, 1, (3, ))
-        p_affin = 5 *  x / (7 *  (100 + x))
-        p_musk =  x / ( 2 *  (100 + x))
-        p_noise = 1 * x / (4 * (100 + x))
-        k_affin = 3 * x /(4 * (200 + x)) + 1/4
-        k_musk =  3 * x /(4 * (200 + x)) + 1/4
-        k_noise =  3 * x /(4 * (200 + x)) + 1/4
-        if(dice[0] < p_affin):
-            x, y = np.random.randint(-self.mleng, self.mleng, (2, )) * k_affin
-            x = x.astype(int)
-            y = y.astype(int)
-            image = self.translation(x, y, image)
+        p_affin =  6 * x / ( 7 * (20 + x))
+        p_musk =  x / ( 10 *  (20 + x))
+        p_noise = 1 * x / (10 * (20 + x))
+        k_affin =  3 * x /(4 * (50 + x)) + 1/4
+        k_musk =    x /( (50 + x))
+        k_noise =   x /(2 * (50 + x)) + 1/2
+        if(dice[0] < 4/5):
             theta = np.random.uniform(-self.theta, self.theta) * k_affin
             af1 = np.array([[np.cos(theta),-np.sin(theta)],
                         [np.sin(theta),np.cos(theta)]])
             xrate, yrate = np.random.uniform(1 / self.exrate , self.exrate, (2,)) 
             xrate = (1 - xrate) * k_affin + xrate
             yrate = (1 - yrate) * k_affin + yrate
-            yrate = yrate * yrate
             af2 = np.array([xrate, 0, 0, yrate]).reshape(2,2)
             xsque, ysque = np.random.uniform(-self.squetheta, self.squetheta, (2,)) * k_affin
             af3 = np.array([1, np.tan(xsque), np.tan(ysque), 1]).reshape(2,2)
-            af = af1 @ af2 @ af3
+            af = af3 @ af2 @ af1
             image = self.Affine_conv(image, af)
-        if(dice[2] < p_noise):
+            x, y = np.random.randint(-self.mleng, self.mleng, (2, )) * k_affin
+            x = x.astype(int)
+            y = y.astype(int)
+            image = self.translation(x, y, image)
+        if(dice[2] < 1/10):
             image = self.thick_filtering(image)
-            image = self.addnoise(image, k_noise)
-        if(dice[1] < p_musk):
-            muskdice = np.random.randint(0, 2)
-            if(muskdice == 1):
+            image = self.whitenoise(image, self.wlen * k_noise)
+        if(dice[1] < 1 ):
+            image = self.addnoise(image, k_musk)
+            """muskdice = np.random.randint(0, 2)
+            if(muskdice == 0):
                 cutlen = int(self.cutlen * k_musk)
                 image = self.cutout(image, cutlen)
             else:
-                image = self.randomerase(image, k_musk)
-
+                image = self.randomerase(image, k_musk)"""
         return image
         
     def prop(self, image):
@@ -200,7 +199,7 @@ class RArg():
     def randomerase(self, img, k):
         B, len, _ = img.shape
         se = np.random.uniform(0.02, 0.4) * 28 * 28 * k
-        re = np.random.uniform(3/10, 3/10)
+        re = np.random.uniform(3/10, 10/3)
         x = np.sqrt(se/re).astype(int)
         y = np.sqrt(se*re).astype(int)
         xe, ye = np.random.randint(0, len, (2,))
@@ -213,8 +212,8 @@ class RArg():
     
     def addnoise(self, img, k):
         B, len, _ = img.shape
-        noise = np.random.normal(loc=0, scale=(k *self.gauss), size=(B, len, len))
-        return img + noise
+        noise = np.random.normal(loc=1, scale=(k * self.gauss), size=(B, len, len))
+        return img * noise
     
     def randomcrop(self, img):
         B, len, _ = img.shape
@@ -243,7 +242,7 @@ class RArg():
         B, imr, _ = x.shape
         R = 3
         K = 1
-        filter_W = np.array([0, 0, 0, 0, 0.5,0.5, 0, 0.5,0.5]).reshape(1, 9)
+        filter_W = np.array([0.5, 0.5, 0.5, 0.5, 5,0.5, 0.5, 0.5,0.5]).reshape(1, 9)
         bias = 0
         r = R // 2
         self.r = r
@@ -278,11 +277,12 @@ ims = Imshow.Imshow()
 #plt.show()
 
 #sque角がでかいとエラー確認
-ra = RArg(10, 16, np.pi/6, 6/5, 5, np.pi/12, 5)
-shimg = np.copy(img[1])
+ra = RArg(15, 18, np.pi/6, 4/5, 5, np.pi/9, 5)
+index = 65
+shimg = np.copy(img[index])
 for i in range(100):
     cimg = ra.prop2(img, i)
-    shimg = np.vstack((shimg, cimg[1]))
+    shimg = np.vstack((shimg, cimg[index]))
         
 shimg = shimg.reshape(-1, 28, 28)
 ims.imshow(shimg)

@@ -7,11 +7,12 @@ from Layer.SAM import SAM
 #全結合層
 class Affine():
     #A -> Bの全結合層
-    def __init__(self, A, B, l2para, opt="Adam"):
+    def __init__(self, A, B, l2para=0, opt="Adam"):
         #W行列, bバイアス 
         self.l2lambda = l2para
         self.W = np.random.normal(loc=0, scale=np.sqrt(1/A), size=(B, A))
         self.b = np.random.normal(loc=0, scale=np.sqrt(1/A), size=(B, 1))
+        self.opt = opt
         #ユニットの数
         self.A = A
         self.B = B
@@ -67,6 +68,20 @@ class Affine():
     def update(self, W, b):
         self.W = W
         self.b = b
+        opt = self.opt
+        if(opt == "Adam"):
+            #Adamインスタンス化
+            self.Wad = Adam.Adam(self.W)
+            self.bad = Adam.Adam(self.b)
+        elif(opt == "MSGD"):
+            self.Wad = MomentumSGD.MSGD(self.W)
+            self.bad = MomentumSGD.MSGD(self.b)
+        elif(opt == "SAM"):
+            self.wsam = SAM(self.W)
+            self.bsam = SAM(self.b)
+        elif(opt == "ADSGD"):
+            self.Wad = MomentumSGD.ADSGD(self.W)
+            self.bad = MomentumSGD.ADSGD(self.b)
 
     def back_ADSGD(self, dy, k):
         delta_x = np.matmul(self.W.T, dy)
@@ -81,7 +96,7 @@ class Affine():
         delta_x = np.matmul(self.W.T, dy)
         #print(delta_x.shape) -> imgsize * B
         delta_W = np.matmul(dy, self.x.reshape(self.Bnum, self.A)) + self.l2lambda * 2 * self.W
-        delta_b = np.sum(dy, axis=1).reshape(self.B, 1) + self.l2lambda * 2 * self.W
+        delta_b = np.sum(dy, axis=1).reshape(self.B, 1) + self.l2lambda * 2 * self.b
         self.W = self.Wad.update(delta_W)
         self.b = self.bad.update(delta_b)
         return delta_x

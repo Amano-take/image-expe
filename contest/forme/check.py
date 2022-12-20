@@ -19,14 +19,17 @@ Y = np.loadtxt("./contest/predict.txt")
 Z = np.loadtxt("./contest/forme/answer2.txt")
 
 X = np.array(list_arr).reshape(-1, 28, 28)
-for i in range(10):
-    print("0 ~ 9999")
-    index = int(input())
+for i in range(20):
+    #print("0 ~ 9999")
+    #index = int(input())
+    index = np.random.randint(0, 9980)
+    print(index)
     print(Y[index:index+12].reshape(3, 4))
     plt.imshow(X[index:index+12].reshape(3, 4, 28, 28).transpose(0,
                                                                  2, 1, 3).reshape(3*28, 4*28), cmap=cm.gray)
     plt.show()
 
+"""
 j = 0
 for i, z in enumerate(Z):
     if (z != Y[i]):
@@ -35,5 +38,5 @@ for i, z in enumerate(Z):
         plt.show()
         j += 1
         print(j)
-
+"""
     

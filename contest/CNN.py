@@ -25,7 +25,7 @@ def test():
     filw = 5
     phi = 0.5
 
-    parameters = np.load("./Parameters/CNN-2.npz")
+    parameters = np.load("./Parameters/CNN.npz")
     W2 = parameters['arr_0']
     b2 = parameters['arr_1']
     normal_beta = parameters['arr_2']
@@ -38,6 +38,7 @@ def test():
     
     imgl = Xtest.shape[1]
     M = ch * (imgl // poolw) * (imgl // poolw)
+    ims = Imshow()
 
     epoch = Xtest.shape[0] // B
     img_size = Xtest[0].size

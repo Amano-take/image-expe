@@ -6,13 +6,14 @@ import MomentumSGD
 import SAM
 
 class BatchNormalize():
-    eps = 1e-8
+    eps = 1e-3
 
-    def __init__(self, M, l2para, opt="Adam"):
+    def __init__(self, M, l2para = 0, opt="Adam"):
         self.M = M
         self.l2lambda = l2para
         self.beta = np.zeros(self.M).reshape(self.M, 1)
         self.ganma = np.ones(self.M).reshape(self.M, 1)
+        self.opt = opt
         if(opt=="Adam"):
             self.betaAdam = Adam.Adam(self.beta)
             self.ganmaAdam = Adam.Adam(self.ganma)
@@ -66,6 +67,20 @@ class BatchNormalize():
     def update(self, beta, ganma):
         self.beta = beta
         self.ganma = ganma
+        opt = self.opt
+        if(opt=="Adam"):
+            self.betaAdam = Adam.Adam(self.beta)
+            self.ganmaAdam = Adam.Adam(self.ganma)
+        elif(opt=="MSGD"):
+            self.betaAdam = MomentumSGD.MSGD(self.beta)
+            self.ganmaAdam = MomentumSGD.MSGD(self.ganma)
+        elif(opt == "SAM"):
+            self.betasam = SAM.SAM(self.beta)
+            self.ganmasam = SAM.SAM(self.ganma)
+        elif(opt == "ADSGD"):
+            self.betaAdam = MomentumSGD.ADSGD(self.beta)
+            self.ganmaAdam = MomentumSGD.ADSGD(self.ganma)
+        return 
 
     def SAM_back1(self, delta):
         delta_xi_head = delta * self.ganma

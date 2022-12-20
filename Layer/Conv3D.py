@@ -5,7 +5,7 @@ import MomentumSGD
 
 class Conv3D():
 
-    def __init__(self, K, R, imglen, B, ch, l2para, opt="Adam"):
+    def __init__(self, K, R, imglen, B, ch, l2para=0, opt="Adam"):
         #filterはK * ch * R * R
         #入力はB *　ch * imglen * imglenを想定
         self.l2lambda = l2para
@@ -14,6 +14,7 @@ class Conv3D():
         self.imr = imglen
         self.B = B
         self.ch = ch
+        self.opt = opt
         #フィルターの初期化
         self.filter_W = np.random.normal(loc=1/(R*R), scale=0.01, size=(K, R * R * ch))
         self.bias = np.repeat(np.random.normal(loc=0, scale=0.01, size=(K, 1)), imglen*imglen*B, axis=1)
@@ -94,7 +95,19 @@ class Conv3D():
     def update(self, filter_W, bias):
         self.filter_W = filter_W
         self.bias = bias
-        return
+        opt = self.opt
+        if(opt == "Adam"):
+            self.filAdam = Adam.Adam(self.filter_W)
+            self.biAdam = Adam.Adam(self.bias)
+        elif(opt == "MSGD"):
+            self.filAdam = MomentumSGD.MSGD(self.filter_W)
+            self.biAdam = MomentumSGD.MSGD(self.bias)
+        elif(opt == "SAM"):
+            self.filsam = SAM.SAM(self.filter_W)
+            self.bsam = SAM.SAM(self.bias)
+        elif(opt=="ADSGD"):
+            self.filAdam = MomentumSGD.ADSGD(self.filter_W)
+            self.biAdam = MomentumSGD.ADSGD(self.bias)
 
     def SAM_back1(self, delta):
         delta = delta.transpose(1, 0, 2, 3).reshape(self.K, -1)

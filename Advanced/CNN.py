@@ -2,6 +2,7 @@ import mnist
 import sys
 import os
 import matplotlib.pyplot as plt
+
 from pylab import cm
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from Layer import BatchNormalize
@@ -19,33 +20,43 @@ from Layer.RandomArgumentation import RArg
 from Layer import Normalize
 import numpy as np
 
-#todo
-#Adamからの変更
-#足りてないアーギュメンテーションは？
-#アーギュメンテーションのハイパラ？
-#苦手な問題を繰り返し学習
+
+# todo
+# Adamからの変更
+# 足りてないアーギュメンテーションは？
+# アーギュメンテーションのハイパラ？
+# 苦手な問題を繰り返し学習
+
 
 class test():
 
-    def __init__(self, a):
+    def __init__(self):
         seed = 600
         np.random.seed(seed)
         self.B = 100
         self.C = 10
-        #4だと学習が早くかなり汎化性能ある。2のメリット見つからず
-        #さらに大きく7!!!
+        # 4だと学習が早くかなり汎化性能ある。2のメリット見つからず -> contest が95％前後で停滞.
+        #明らかにプーリングによる弊害を確認. 
+        # しかしpooling window 2 だと教師データに対しても向上せず. pooling2に対しての, そのあとの表現力が足りない...?
+        #ひとまずchを増やすことによって対処 -> シャレにならないくらい遅い(´;ω;｀)
+        #特に改善なし...
+        #GPU使いたいのでひとまず終えます...
         self.poolw = 7
-        #8, 16, 4, 32　をためしてみる ->それほど変わらず,,
+        # 8, 16, 4, 32　をためしてみる ->それほど変わらず,,
         #ちょうどいいのは16, 32
         self.ch = 32
-        #小さいほうがいいらしい？？
+        # 小さいほうがいいらしい？？
         self.filw = 5
-        self.phi = 0.5
-        #逆効果
+        self.phi = 0.4
+        # 逆効果
         self.smoothp = 0
-        #l2正則化
-        self.l2lambda = 0.01
+        # l2正則化
+        self.l2lambda = 0.002
+        self.testcorrectrate = []
+        self.teachercorrectrate = []
+        self.ims = Imshow()
 
+    def do(self, a):
         if a == 0:
             self.study()
         else:
@@ -53,8 +64,16 @@ class test():
 
     def study(self):
         # 層に関して
-        X = np.array(mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz"))
-        Y = np.array(mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz"))
+        X_p = np.array(mnist.download_and_parse_mnist_file(
+            "train-images-idx3-ubyte.gz"))
+        Y_p = np.array(mnist.download_and_parse_mnist_file(
+            "train-labels-idx1-ubyte.gz"))
+        Xtest = np.array(mnist.download_and_parse_mnist_file(
+            "t10k-images-idx3-ubyte.gz"))
+        Ytest = np.array(mnist.download_and_parse_mnist_file(
+            "t10k-labels-idx1-ubyte.gz"))
+        X = np.vstack((X_p, Xtest))
+        Y = np.hstack((Y_p, Ytest))
         imgl = X.shape[1]
         B = self.B
         M = self.ch * (imgl // self.poolw) * (imgl // self.poolw)
@@ -62,28 +81,30 @@ class test():
         Ini = Initialize.Initialize(X, Y, B, C, self.smoothp)
         # 過学習制御用　-> 始め200個を使ってることになりますね(´;ω;｀)
         Xtest, Ytest = ConAn.get(0, 200)
-        
+
         # 学習に関して -> 過学習を検知して自動で止まるので大きく
         # 実際に優秀なパラを得たのは手動のearly-stoppingでです
-        num = 1000
-        epoch = X.shape[0]// B
+        num = 10000
+        epoch = X.shape[0] // B
         # 初期化
         crossE = 0
         correctnum = 0
         precorrectnum = 0
         # Layer
-        #ここのハイパラは見てわかる程度に制限しています.
-        ra = RArg(20, 20, np.pi/4, 5/4, 10, np.pi/12, 5)
-        Conv = Conv3D.Conv3D(self.ch, self.filw, imgl, B, 1, opt="MSGD")
+        # ここのハイパラは見てわかる程度に制限しています.
+        ra = RArg(0.1, 10, np.pi/8, 5/4, 5, np.pi/9, 5)
+        #Bnormal0 = BatchNormalize.BatchNormalize(imgl*imgl, self.l2lambda, opt="MSGD")
+        Conv = Conv3D.Conv3D(self.ch, self.filw, imgl, B,
+                             1, self.l2lambda, opt="MSGD")
         pooling = Pooling.Pooling()
-        Bnormal = BatchNormalize.BatchNormalize(M, opt="MSGD")
+        Bnormal = BatchNormalize.BatchNormalize(M, self.l2lambda, opt="MSGD")
         relu = Activate.Relu()
         dropout = Dropout.Dropout(self.phi, B, M)
-        Affine2 = Affine.Affine(M, C, "MSGD")
+        Affine2 = Affine.Affine(M, C, self.l2lambda, "MSGD")
         SofCross = Softmax_cross.Softmax_cross()
-        #途中から学習
-        """
-        parameters = np.load("./Parameters/CNN-4.npz")
+        # 途中から学習
+
+        parameters = np.load("./Parameters/CNN.npz")
         W2 = parameters['arr_0']
         b2 = parameters['arr_1']
         normal_beta = parameters['arr_2']
@@ -92,17 +113,18 @@ class test():
         fil_bias = parameters['arr_5']
         Affine2.update(W2, b2)
         Bnormal.update(normal_beta, noraml_ganma)
-        Conv.update(filter_W, fil_bias)"""
+        Conv.update(filter_W, fil_bias)
         for i in range(num):
             precrossE = crossE
             crossE = 0
-            for j in range(epoch):
+            teachansrate = 0
+            for j in range(epoch//20):
+                print('\r' + str(j * 100 / (epoch//20)) + '%', end="")
                 Batch_img, onehot, ans = Ini.randomselect()
-                #argumentation
-                Batch_img = ra.prop2(Batch_img, i)
-                Batch_img = Batch_img.reshape(self.B, 1, imgl, -1)
+                # argumentation
+                out_Ra = ra.prop2(Batch_img, 120)
                 # 画像畳み込み
-                outC = Conv.prop(Batch_img)
+                outC = Conv.prop(out_Ra.reshape(self.B, 1, imgl, -1))
                 # プーリング
                 outP = pooling.pooling(outC, self.poolw)
                 # 形変える
@@ -119,38 +141,39 @@ class test():
                 # 最終層
                 finout = SofCross.prop(outAf2)
                 crossE = crossE + SofCross.crossEn(onehot)
-                """if (j % (epoch // 4) == 0):
-                    print(SofCross.anserrate(ans))"""
+                teachansrate += SofCross.anserrate(ans)
 
                 # 学習
                 delta_outAf2 = SofCross.back()
-                #print(delta_outAf2.shape) -> C * B
-                delta_outD = Affine2.back(delta_outAf2)
+                # print(delta_outAf2.shape) -> C * B
+                delta_outD = Affine2.back_l2(delta_outAf2)
                 # print(delta_outS.shape) -> M * B
                 delta_outS = dropout.back(delta_outD)
                 # print() -> M * B
                 delta_outN = relu.back(delta_outS)
                 # print(delta_outN.shape) -> M * B
-                delta_outP = Bnormal.back(delta_outN)
+                delta_outP = Bnormal.back_l2(delta_outN)
                 # print(delta_outAf1.shape) -> M * B
                 # print(delta_outP.shape) -> (ch * imgsize) * B
                 delta_outC = pooling.back(delta_outP.T)
-                _ = Conv.back(delta_outC)
+                _ = Conv.back_l2(delta_outC)
 
-            #1epoch終了
-            crossE = crossE / epoch
-            print(str(i) + "epoch終了", end=":")
+            # 1epoch終了
+            
+            crossE = crossE / (j+1)
+            self.teachercorrectrate.append(teachansrate / (j+1))
+            print("\r" + str(i) + "epoch終了", end=":")
             print(crossE)
 
             correctnum = 0
-            #過学習判定
-            test = Initialize.Initialize(Xtest, Ytest, self.B, self.C, self.smoothp)
-            #テストデータB * 10仕様
+            # 過学習判定
+            test = Initialize.Initialize(
+                Xtest, Ytest, self.B, self.C, self.smoothp)
+            # テストデータB * 10仕様
             for i in range(Xtest.shape[0] // self.B):
                 Batch_img, ans = test.orderselect(i)
-                Batch_img = Batch_img.reshape(self.B, 1, imgl, -1)
                 # 画像畳み込み
-                outC = Conv.prop(Batch_img)
+                outC = Conv.prop(Batch_img.reshape(self.B, 1, imgl, -1))
                 # プーリング
                 outP = pooling.pooling(outC, self.poolw)
                 # 形変える
@@ -159,23 +182,24 @@ class test():
                 outN = Bnormal.prop(outP)
                 # 中間層
                 outS = relu.prop(outN)
-                #ドロップアウト
+                # ドロップアウト
                 outD = dropout.test(outS)
                 # ~最終層
                 outAf2 = Affine2.prop(outD)
                 # 最終層
-                finout = SofCross.prop(outAf2)   
+                finout = SofCross.prop(outAf2)
                 correctnum += SofCross.anserrate(ans)
             correctnum = correctnum / 2
+            self.testcorrectrate.append(correctnum)
             print("contest_rate")
             print(correctnum)
-            if(correctnum >= precorrectnum): 
+            if(correctnum >= precorrectnum):
                 print("更新!!")
-                np.savez("./Parameters/CNN-2", Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
+                np.savez("./Parameters/CNN", Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
                          Conv.filter_W, Conv.bias)
-                np.savez("./Parameters/finout2", finout)
+                np.savez("./Parameters/finout", finout)
                 precorrectnum = correctnum
-                if(correctnum > 0.95):
+                if(correctnum > 0.97):
                     print("finish")
                     break
 
@@ -238,6 +262,7 @@ class test():
                     correct_num = correct_num + 1
         print(correct_num * 100 / Xtest.shape[0])
 
+
 """
 di = Diversify.Diversify()
 X = np.array(mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz"))
@@ -247,8 +272,16 @@ Imshow.imshow(Xtest)
 
 print("study -> 0, test -> 1")
 a = int(input())
+te = test()
 try:
-    test(a)
+    te.do(a)
 except KeyboardInterrupt:
-    
-#"""
+    y = range(len(te.testcorrectrate))
+    teachercorrectrate = te.teachercorrectrate[0:len(te.testcorrectrate)]
+    np.savez("./report_para/MSDG0", teachercorrectrate, te.testcorrectrate)
+    plt.plot(y, teachercorrectrate, label="teacher")
+    plt.plot(y, te.testcorrectrate, label="contest")
+    plt.legend()
+    plt.show()
+# """
+
