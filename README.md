@@ -27,6 +27,9 @@ Parameters
 二層目にバッチノーマライゼーション, relu関数, Dropout  
 三層目にSoftmax, CrossEntropy関数  
 それぞれの間には全結合を行っています  
+-> 全結合を一つだけにしました. 
+-> さらに小さなdata-argumentationを行い過学習させた物をfinetuningパラメータとして,  
+それを適切なdata-argumentationを模索しながら,パラメータ更新を行っていきました。
 
 厳密な層数の定義がわからないので,三層ではないかもしれません.  
 
