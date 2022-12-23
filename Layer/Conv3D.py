@@ -33,6 +33,9 @@ class Conv3D():
             self.biAdam = MomentumSGD.ADSGD(self.bias)
     
     #使う予定なし
+    def updateB(self, newB):
+        self.bias = self.bias[:, 0].reshape(-1, 1)
+
     def fil2W(self, filter):
         K, ch, self.R, _ = filter.shape
         return filter.reshape(K, -1)
@@ -52,6 +55,7 @@ class Conv3D():
         #filter_w = K * (ch * R * R), Rは奇数を想定
         #x = B * ch * x * x (x = 28)
         # 教科書通りに定義
+        self.B = x.shape[0]
         r = self.R // 2
         #backで使用
         self.r = r

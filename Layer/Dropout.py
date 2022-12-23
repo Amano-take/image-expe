@@ -7,9 +7,9 @@ class Dropout():
         self.B = B
         self.M = M
         
-
+    
     def prop(self, x):
-        B = self.B
+        B = x.shape[0]
         M = self.M
         drop_random = np.repeat(np.random.randint(0, M, self.msk_num), B).reshape(B, -1)
         mask_vector = np.ones((B, M))

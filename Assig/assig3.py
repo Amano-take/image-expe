@@ -104,7 +104,7 @@ for i in range(5):
         b2 = b2 - my * delta_b2
     print(crossE / epoch)
 
-np.savez("./Parameters/parameter", W1, W2, b1, b2)
+np.savez("./Parameters/parameter_assig3", W1, W2, b1, b2)
 
 
 

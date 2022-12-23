@@ -169,6 +169,17 @@ INPUT c:/texlive/2022/texmf-dist/tex/latex/graphics-def/dvipdfmx.def
 INPUT c:/texlive/2022/texmf-dist/tex/latex/graphics-def/dvipdfmx.def
 INPUT c:/texlive/2022/texmf-dist/tex/latex/graphics-def/dvipdfmx.def
 INPUT c:/texlive/2022/texmf-dist/tex/latex/graphics-def/dvipdfmx.def
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/listings/listings.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/listings/listings.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/listings/listings.sty
@@ -272,4 +283,11 @@ INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tgoth10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmr9.tfm
+INPUT ./Figure_1.png
+INPUT ./Figure_1.png
+INPUT Figure_1.png
+INPUT extractbb -B cropbox -O Figure_1.png
 INPUT out/Report4.aux

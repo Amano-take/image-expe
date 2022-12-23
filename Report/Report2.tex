@@ -179,5 +179,10 @@ $$
 \end{lstlisting}
 
 \section{実際の動作}
-
+\begin{lstlisting}[caption=Actual Move]
+  2.4802906574896886
+\end{lstlisting}
+全く学習していないパラメータの場合, 予測値は確率が1/10であたるので,
+クロスエントロピーは次の値が妥当である$-\log{\frac{1}{10}} = 2.3025\dots$
+よっておそらく正しく計算できていると予測できる.
 \end{document}

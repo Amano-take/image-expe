@@ -1,11 +1,12 @@
 # Fdb version 3
-["dvipdf"] 1671174203 "out/Report4.dvi" "out/Report4.pdf" "out/Report4" 1671174205
-  "out/Report4.dvi" 1671174202 5256 0fae6c26da4b004f3fefdbecc4417d70 "latex"
+["dvipdf"] 1671684474 "out/Report4.dvi" "out/Report4.pdf" "out/Report4" 1671684476
+  "out/Report4.dvi" 1671684474 6124 770c1fc680707caa6ccef7320477c9da "latex"
   (generated)
   "out/Report4.pdf"
-["latex"] 1671174200 "c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/Report4.tex" "out/Report4.dvi" "Report4" 1671174205
-  "Report4.tex" 1671174199 2371 04498da3d881b66b5c7138131584ebd0 ""
-  "c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/Report4.tex" 1671174199 2371 04498da3d881b66b5c7138131584ebd0 ""
+["latex"] 1671684472 "c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/Report4.tex" "out/Report4.dvi" "Report4" 1671684476
+  "Figure_1.png" 1671683817 7708 030e742cbc156dc3ec4fd27a0fe00e6e ""
+  "Report4.tex" 1671684471 2930 3bbbd25b5f058adf1a47cd25fc3b75ce ""
+  "c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/Report4.tex" 1671684471 2930 3bbbd25b5f058adf1a47cd25fc3b75ce ""
   "c:/texlive/2022/texmf-dist/fonts/map/fontname/texfonts.map" 1655963066 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm" 1655965127 468 53f854284f6afa6c36aaa2d1090ecc12 ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm" 1655965127 468 53f854284f6afa6c36aaa2d1090ecc12 ""
@@ -34,6 +35,7 @@
   "c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmr17.tfm" 1655962189 1292 296a67155bdbfc32aa9c636f21e91433 ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmr6.tfm" 1655962189 1300 b62933e007d01cfd073f79b963c01526 ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmr8.tfm" 1655962189 1292 21c1c5bfeaebccffdb478fd231a0997d ""
+  "c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmr9.tfm" 1655962189 1292 6b21b9c2c7bebb38aa2273f7ca0fb3af ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmss12.tfm" 1655962189 1324 37b971caf729d7edd9cbb9f9b0ea76eb ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm" 1655962189 1124 6c73e740cf17375f03eec0ee63599741 ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmsy6.tfm" 1655962189 1116 933a60c408fc0a863a92debe84b2d294 ""
@@ -59,12 +61,13 @@
   "c:/texlive/2022/texmf-dist/tex/latex/listings/listings.sty" 1655963937 80964 64e57373f36316e4a09b517cbf1aba2e ""
   "c:/texlive/2022/texmf-dist/tex/latex/listings/lstmisc.sty" 1655963937 77022 ee25ce086f4a79d8cf73bac6f94c02a5 ""
   "c:/texlive/2022/texmf-dist/tex/latex/tools/bm.sty" 1655966015 13231 b52297489a0e9d929aae403417d92a02 ""
+  "c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty" 1655966360 26220 3701aebf80ccdef248c0c20dd062fea9 ""
   "c:/texlive/2022/texmf-dist/tex/platex/jsclasses/jsarticle.cls" 1655963630 60810 5a58feea6fbea0a330b0ddfb4da256c4 ""
   "c:/texlive/2022/texmf-dist/tex/platex/jsclasses/jslogo.sty" 1655963630 5585 8e4615c54073c390d14154b29cee89cb ""
   "c:/texlive/2022/texmf-dist/web2c/texmf.cnf" 1655961382 40171 cdab547de63d26590bebb3baff566530 ""
   "c:/texlive/2022/texmf-var/web2c/eptex/platex.fmt" 1655966805 2863271 d6caebcb158756daa602176dee2c0b7b ""
   "c:/texlive/2022/texmf.cnf" 1655966550 853 03058b5e170dde772f22cb3779155945 ""
-  "out/Report4.aux" 1671174202 323 f4ca19e3863060ac4d7c3b9cb7f9860b "latex"
+  "out/Report4.aux" 1671684474 536 881bb95388aca5a78a1e8aecf00c0673 "latex"
   (generated)
   "out/Report4.aux"
   "out/Report4.dvi"

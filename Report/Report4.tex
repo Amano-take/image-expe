@@ -6,7 +6,9 @@
 \usepackage{bm}
 % 画像
 \usepackage[dvipdfmx]{graphicx}
+\usepackage{wrapfig}
 \usepackage{listings,jvlisting}
+
 \lstset{
   basicstyle={\ttfamily},
   identifierstyle={\small},
@@ -78,13 +80,29 @@ MNIST のテスト画像 1 枚を入力とし, 3 層ニューラルネットワ�
   output_last = np.exp(input2 - alpha) / sumexp
 
   answer = np.argmax(output_last)
-  print("予測:", end = "")
+  print("expected:", end = "")
   print(answer) 
 \end{lstlisting}
 この3NNが予測した数はソフトマックス層が出力した10個の値の
 中で最大値をとるもののargであるから, それを出力する.
 
 \section{実際の動作}
+\begin{lstlisting}[caption=Actual Move]
+  1~9999
+  10
+  expected:0
+  1~9999
+  100
+  expected:6
+\end{lstlisting}
+\begin{wrapfigure}{l}[0pt]{0.5\textwidth}
+  \centering
+      \includegraphics[height = 5cm]{Figure_1.png}
+      \centering
+        \caption{index=10}
+\end{wrapfigure}
 
-
+左の画像は, 10を入力した時の出力であり, 10番目の画像を表示しており,
+その画像に対して予測値は0を出力している. これを計10回行い, 
+すべての予測値が正しいことを確認した.
 \end{document}

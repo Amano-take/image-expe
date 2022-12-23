@@ -25,7 +25,7 @@ def test():
     filw = 5
     phi = 0.5
 
-    parameters = np.load("./Parameters/CNN.npz")
+    parameters = np.load("./Parameters/semi_CNN.npz")
     W2 = parameters['arr_0']
     b2 = parameters['arr_1']
     normal_beta = parameters['arr_2']
@@ -41,7 +41,6 @@ def test():
     ims = Imshow()
 
     epoch = Xtest.shape[0] // B
-    img_size = Xtest[0].size
 
     Conv = Conv3D.Conv3D(ch, filw, imgl, B, 1)
     pooling = Pooling.Pooling()

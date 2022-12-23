@@ -1,4 +1,4 @@
-This is e-pTeX, Version 3.141592653-p4.0.0-220214-2.6 (utf8.sjis) (TeX Live 2022) (preloaded format=platex 2022.6.23)  16 DEC 2022 16:03
+This is e-pTeX, Version 3.141592653-p4.0.0-220214-2.6 (utf8.sjis) (TeX Live 2022) (preloaded format=platex 2022.6.23)  22 DEC 2022 13:47
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -144,126 +144,143 @@ File: dvipdfmx.def 2022/04/16 v5.0l Graphics/color driver for dvipdfmx
 ))
 \Gin@req@height=\dimen169
 \Gin@req@width=\dimen170
+) (c:/texlive/2022/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+\wrapoverhang=\dimen171
+\WF@size=\dimen172
+\c@WF@wrappedlines=\count271
+\WF@box=\box71
+\WF@everypar=\toks23
+Package: wrapfig 2003/01/31  v 3.6
 ) (c:/texlive/2022/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count271
-\lst@gtempboxa=\box71
-\lst@token=\toks23
-\lst@length=\count272
-\lst@currlwidth=\dimen171
-\lst@column=\count273
-\lst@pos=\count274
-\lst@lostspace=\dimen172
-\lst@width=\dimen173
-\lst@newlines=\count275
-\lst@lineno=\count276
-\lst@maxwidth=\dimen174
+\lst@mode=\count272
+\lst@gtempboxa=\box72
+\lst@token=\toks24
+\lst@length=\count273
+\lst@currlwidth=\dimen173
+\lst@column=\count274
+\lst@pos=\count275
+\lst@lostspace=\dimen174
+\lst@width=\dimen175
+\lst@newlines=\count276
+\lst@lineno=\count277
+\lst@maxwidth=\dimen176
 (c:/texlive/2022/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
-\c@lstnumber=\count277
-\lst@skipnumbers=\count278
-\lst@framebox=\box72
+\c@lstnumber=\count278
+\lst@skipnumbers=\count279
+\lst@framebox=\box73
 ) (c:/texlive/2022/texmf-dist/tex/latex/listings/listings.cfg
 File: listings.cfg 2020/03/24 1.8d listings configuration
 ))
 Package: listings 2020/03/24 1.8d (Carsten Heinz)
 (c:/texlive/2022/texmf-dist/tex/latex/jvlisting/jvlisting.sty
 Package: jvlisting 2011/11/17 v0.7 Formatted Program Listings
-\jvl@idt=\count279
-\jvl@tmphyphenchar=\count280
+\jvl@idt=\count280
+\jvl@tmphyphenchar=\count281
 \jvl@fileinput=\read2
 \listingskipamount=\skip53
-\listingindent=\dimen175
-\prelistingpenalty=\count281
-\listingpenalty=\count282
-\postlistingpenalty=\count283
+\listingindent=\dimen177
+\prelistingpenalty=\count282
+\listingpenalty=\count283
+\postlistingpenalty=\count284
 ) (c:/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-dvips.def
 File: l3backend-dvips.def 2022-04-20 L3 backend support: dvips
-\l__pdf_internal_box=\box73
-\g__pdf_backend_object_int=\count284
-\l__pdf_backend_content_box=\box74
-\l__pdf_backend_model_box=\box75
-\g__pdf_backend_annotation_int=\count285
-\g__pdf_backend_link_int=\count286
-\g__pdf_backend_link_sf_int=\count287
+\l__pdf_internal_box=\box74
+\g__pdf_backend_object_int=\count285
+\l__pdf_backend_content_box=\box75
+\l__pdf_backend_model_box=\box76
+\g__pdf_backend_annotation_int=\count286
+\g__pdf_backend_link_int=\count287
+\g__pdf_backend_link_sf_int=\count288
 ) (out/Report4.aux)
 \openout1 = `Report4.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for JY1/mc/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for JT1/mc/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-\c@lstlisting=\count288
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for JY1/mc/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for JT1/mc/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+\c@lstlisting=\count289
 LaTeX Font Info:    Font shape `JT1/mc/m/n' will be
-(Font)              scaled to size 16.60605pt on input line 34.
+(Font)              scaled to size 16.60605pt on input line 36.
 LaTeX Font Info:    Font shape `JY1/mc/m/n' will be
-(Font)              scaled to size 16.60605pt on input line 34.
+(Font)              scaled to size 16.60605pt on input line 36.
 LaTeX Font Info:    Font shape `JT1/mc/m/n' will be
-(Font)              scaled to size 11.53198pt on input line 34.
+(Font)              scaled to size 11.53198pt on input line 36.
 LaTeX Font Info:    Font shape `JY1/mc/m/n' will be
-(Font)              scaled to size 11.53198pt on input line 34.
+(Font)              scaled to size 11.53198pt on input line 36.
 LaTeX Font Info:    Font shape `JY1/mc/m/n' will be
-(Font)              scaled to size 5.76599pt on input line 34.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 34.
+(Font)              scaled to size 5.76599pt on input line 36.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 36.
 (c:/texlive/2022/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 34.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 36.
 (c:/texlive/2022/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `JY1/gt/m/n' will be
-(Font)              scaled to size 11.53198pt on input line 34.
+(Font)              scaled to size 11.53198pt on input line 36.
 LaTeX Font Info:    Font shape `JY1/gt/m/n' will be
-(Font)              scaled to size 7.68799pt on input line 34.
+(Font)              scaled to size 7.68799pt on input line 36.
 LaTeX Font Info:    Font shape `JY1/gt/m/n' will be
-(Font)              scaled to size 5.76599pt on input line 34.
+(Font)              scaled to size 5.76599pt on input line 36.
 [1
 
 ]
 LaTeX Font Info:    Font shape `JT1/mc/m/n' will be
-(Font)              scaled to size 13.83836pt on input line 37.
+(Font)              scaled to size 13.83836pt on input line 39.
 LaTeX Font Info:    Font shape `JY1/mc/m/n' will be
-(Font)              scaled to size 13.83836pt on input line 37.
+(Font)              scaled to size 13.83836pt on input line 39.
 LaTeX Font Info:    Font shape `JT1/gt/m/n' will be
-(Font)              scaled to size 13.83836pt on input line 37.
+(Font)              scaled to size 13.83836pt on input line 39.
 LaTeX Font Info:    Font shape `JY1/gt/m/n' will be
-(Font)              scaled to size 13.83836pt on input line 37.
+(Font)              scaled to size 13.83836pt on input line 39.
 LaTeX Font Info:    Font shape `JT1/gt/m/n' will be
-(Font)              scaled to size 9.60999pt on input line 45.
+(Font)              scaled to size 9.60999pt on input line 47.
 LaTeX Font Info:    Font shape `JY1/gt/m/n' will be
-(Font)              scaled to size 9.60999pt on input line 45.
+(Font)              scaled to size 9.60999pt on input line 47.
 LaTeX Font Info:    Font shape `JT1/mc/m/n' will be
-(Font)              scaled to size 6.72699pt on input line 46.
+(Font)              scaled to size 6.72699pt on input line 48.
 LaTeX Font Info:    Font shape `JY1/mc/m/n' will be
-(Font)              scaled to size 6.72699pt on input line 46.
+(Font)              scaled to size 6.72699pt on input line 48.
 LaTeX Font Info:    Font shape `JT1/gt/m/n' will be
-(Font)              scaled to size 8.64899pt on input line 46.
+(Font)              scaled to size 8.64899pt on input line 48.
 LaTeX Font Info:    Font shape `JY1/gt/m/n' will be
-(Font)              scaled to size 8.64899pt on input line 46.
+(Font)              scaled to size 8.64899pt on input line 48.
 [2
 
-] [3] (out/Report4.aux) ) 
+]
+LaTeX Font Info:    Font shape `JT1/mc/m/n' will be
+(Font)              scaled to size 8.64899pt on input line 90.
+LaTeX Font Info:    Font shape `JY1/mc/m/n' will be
+(Font)              scaled to size 8.64899pt on input line 90.
+
+Package wrapfig Warning: wrapfigure used inside a conflicting environment on input line 98.
+
+File: Figure_1.png Graphic file (type bmp)
+<Figure_1.png>
+[3] (out/Report4.aux) ) 
 Here is how much of TeX's memory you used:
- 3770 strings out of 478496
- 54454 string characters out of 5854316
- 477111 words of memory out of 5000000
- 22416 multiletter control sequences out of 15000+600000
- 484513 words of font info for 98 fonts, out of 8000000 for 9000
+ 3864 strings out of 478496
+ 55941 string characters out of 5854316
+ 478344 words of memory out of 5000000
+ 22501 multiletter control sequences out of 15000+600000
+ 485093 words of font info for 101 fonts, out of 8000000 for 9000
  934 hyphenation exceptions out of 8191
  55i,6n,62p,296b,1718s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on out/Report4.dvi (3 pages, 5256 bytes).
+Output written on out/Report4.dvi (3 pages, 6124 bytes).
