@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from pylab import cm
 import sys
 
-X = np.arange(20).reshape(2, 2, 5)
-Y = np.arange(30).reshape(3,2,5)
-print(np.vstack((X, Y)))
+x = np.empty((0, 5), dtype=int)
+y = np.arange(10).reshape(2,5)
 
+print(np.vstack((x, y, y)))

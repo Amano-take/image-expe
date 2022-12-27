@@ -51,7 +51,7 @@ class test():
         # 逆効果
         self.smoothp = 0
         # l2正則化
-        self.l2lambda = 0.002
+        self.l2lambda = 0.001
         self.testcorrectrate = []
         self.teachercorrectrate = []
         self.ims = Imshow()
@@ -104,7 +104,7 @@ class test():
         SofCross = Softmax_cross.Softmax_cross()
         # 途中から学習
 
-        parameters = np.load("./Parameters/CNN.npz")
+        """parameters = np.load("./Parameters/contest_fin.npz")
         W2 = parameters['arr_0']
         b2 = parameters['arr_1']
         normal_beta = parameters['arr_2']
@@ -113,7 +113,7 @@ class test():
         fil_bias = parameters['arr_5']
         Affine2.update(W2, b2)
         Bnormal.update(normal_beta, noraml_ganma)
-        Conv.update(filter_W, fil_bias)
+        Conv.update(filter_W, fil_bias)"""
         for i in range(num):
             precrossE = crossE
             crossE = 0
@@ -142,6 +142,7 @@ class test():
                 finout = SofCross.prop(outAf2)
                 crossE = crossE + SofCross.crossEn(onehot)
                 teachansrate += SofCross.anserrate(ans)
+
 
                 # 学習
                 delta_outAf2 = SofCross.back()

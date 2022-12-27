@@ -33,6 +33,18 @@ class Initialize():
         onehot = self.onehot(answer)
         return Batch_img, onehot, answer
 
+    def randomselect_with_arg(self):
+        batch_random = np.random.randint(0, self.X.shape[0], self.B)
+        # 画像取得
+        Batch_img = np.array(self.X[batch_random])
+        # 正解を取得
+        answer = np.array(self.Y[batch_random])
+        #plt.imshow(Batch_img[0], cmap=cm.gray)
+        #plt.show()
+        #print(answer[0])
+        # 正解をone-hot vectorに
+        return Batch_img, answer, batch_random
+
     def orderselect(self, i):
         Batch_img = self.X[i*self.B : (i+1)*self.B]
         answer = self.Y[i*self.B : (i+1)*self.B]

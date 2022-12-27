@@ -1,4 +1,5 @@
 import numpy as np
+import mnist
 
 class ConAn():
 
@@ -25,6 +26,7 @@ class ConAn():
 
         return Xtest, Ytest
 
+    @staticmethod
     def gettest():
         list_arr = []
         with open("./contest/le4MNIST_X.txt") as f:
@@ -35,3 +37,24 @@ class ConAn():
                 list_arr.append(arr)
         Xtest = np.array(list_arr).reshape(-1, 28, 28)
         return Xtest
+    
+    @staticmethod
+    def getmnist(arg=70000):
+        X_p = np.array(mnist.download_and_parse_mnist_file(
+            "train-images-idx3-ubyte.gz"))
+        Y_p = np.array(mnist.download_and_parse_mnist_file(
+            "train-labels-idx1-ubyte.gz"))
+        Xtest = np.array(mnist.download_and_parse_mnist_file(
+            "t10k-images-idx3-ubyte.gz"))
+        Ytest = np.array(mnist.download_and_parse_mnist_file(
+            "t10k-labels-idx1-ubyte.gz"))
+        X = np.vstack((X_p, Xtest))
+        Y = np.hstack((Y_p, Ytest))
+        return X[0:arg], Y[0:arg]
+
+    @staticmethod
+    def onehot(answer):
+        onehot = np.zeros((answer.size, 10))
+        onehot[np.arange(answer.size), answer] = 1
+        onehot = onehot.reshape(-1, 10, 1)
+        return onehot

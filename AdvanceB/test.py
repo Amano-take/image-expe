@@ -1,9 +1,11 @@
 import numpy as np
 # Keras 関係の import
-import keras
-from keras import datasets, models, layers
+import tensorflow.keras as keras
+from tensorflow.keras import datasets, models, layers
 # GPGPU リソースを全消費してしてしまう問題の回避
 import tensorflow as tf
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array
 
 ## 動的に必要なメモリだけを確保（allow_growth=True)
 ## デバイス「0」だけを利用 (visible_device_list="0") ※"0"の部分は，"0"～"3"の中から空いているものを選んでください
@@ -15,9 +17,20 @@ if len(physical_devices) > 0:
 else:
     print("Not enough GPU hardware devices available")
 
+#データジェネレーター
+datagen  = ImageDataGenerator(
+    rotation_range = 10,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    shear_range= 5,
+    zoom_range=0.1,
+    data_format='channels_last'
+)
+
 # MNIST データの準備
 img_rows, img_cols = 28, 28 # 画像サイズは 28x28
 num_classes = 10 # クラス数
+l2lambda = 0.001
 (X, Y), (Xtest, Ytest) = keras.datasets.mnist.load_data() # 訓練用とテスト（兼 validation）用のデータを取得
 X = X.reshape(X.shape[0],img_rows,img_cols,1)
  # X を (画 像 ID，28, 28, 1) の 4 次元配列に変換
@@ -42,18 +55,31 @@ model.add(layers.MaxPooling2D(pool_size=(2,2)))
 # 入力を 1 次元配列に並び替える
 model.add(layers.Flatten())
 # 全結合層．出力ノード数は 128．活性化関数に ReLU．
-model.add(layers.Dense(128,activation='relu'))
+model.add(layers.Dense(128,activation='relu', kernel_regularizer=keras.regularizers.l2(l2lambda), bias_regularizer=keras.regularizers.l2(l2lambda)))
 # 全結合層．出力ノード数は num_classes（クラス数）．活性化関数に softmax．
-model.add(layers.Dense(num_classes, activation='softmax'))
+model.add(layers.Dense(num_classes, activation='softmax', kernel_regularizer=keras.regularizers.l2(l2lambda), bias_regularizer=keras.regularizers.l2(l2lambda)))
 # 作成したモデルの概要を表示
 print (model.summary()) 
 
 model.compile(
 loss=keras.losses.categorical_crossentropy,
-optimizer=keras.optimizers.Adadelta(), metrics=['acc'])
+optimizer=keras.optimizers.SGD(momentum=0.9), metrics=['acc'])
 
-epochs = 10
+epochs = 400
 batch_size = 32
-result = model.fit(X,Y, batch_size=batch_size,
-epochs=epochs, validation_data=(Xtest,Ytest1))
+result = model.fit_generator(datagen.flow(X, Y, batch_size=128),
+    steps_per_epoch=len(X) / 128, epochs = epochs, validation_data=(Xtest, Ytest1))
+"""result = model.fit(X,Y, batch_size=batch_size,
+epochs=epochs, validation_data=(Xtest,Ytest1))"""
 history = result.history
+
+fig = plt.figure()
+plt.plot(history['loss'], label='loss') # 教師データの損失
+plt.plot(history['val_loss'], label='val_loss') # テストデータの損失
+plt.legend()
+plt.savefig("./AdvanceB/Image/loss_history_withaug.png")
+fig = plt.figure()
+plt.plot(history['acc'], label='acc') # 教師データでの精度
+plt.plot(history['val_acc'], label='val_acc') # テストデータでの精度
+plt.legend()
+plt.savefig("./AdvanceB/Image/loss_acc_withaug.png") 

@@ -18,7 +18,19 @@ class Softmax_cross():
         self.ans_onehot = ans_onehot
         self.crossE = (-1/self.B) * np.sum(ans_onehot * np.log(self.y))
         return self.crossE
-    
+
+    def onehot(self, answer):
+        onehot = np.zeros((answer.size, 10))
+        onehot[np.arange(answer.size), answer] = 1
+        onehot = onehot.reshape(self.B, self.C, 1)
+        return onehot
+
+    def crossEnans(self, ans):
+        ans_onehot = self.onehot(ans)
+        self.crossE = (-1/self.B) * np.sum(ans_onehot * np.log(self.y))
+        return self.crossE
+
+        
     def anserrate(self, ans):
         output_last = np.reshape(self.y, (self.B, self.C))
         expect = np.argmax(output_last, axis=1)

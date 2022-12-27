@@ -3,6 +3,7 @@
 
 % 数式
 \usepackage{amsmath,amsfonts}
+\usepackage{amssymb}
 \usepackage{bm}
 % 画像
 \usepackage[dvipdfmx]{graphicx}
@@ -28,7 +29,7 @@
 
 \begin{document}
 
-\title{画像実験課題3}
+\title{画像実験課題A, B}
 \author{1029323422 天野岳洋}
 \date{\today}
 \maketitle
@@ -36,21 +37,149 @@
 
 \section{概要}
 ここでは発展課題Aについて取り組んだ内容について述べたのちに, コンテストに対して
-取り組んだ内容を述べる.
+取り組んだ内容を述べる. 以後明記はしないが, 伝播層では(B, ?, 1)という形で伝播
+するものとし, 逆伝播層では畳み込み層, プーリング層を除き(?, B)という形でデータを
+扱っていることに注意したい.
+\section{AdvancedA}
+発展課題Aの実装について述べる. 実装が簡単であったり, 
+定義通りにしか実装していない場合は説明は省略もしくは非常に簡単に述べるものとする.
+\subsection{A1}
+活性化関数としてSigmoid関数の代わりにRELU関数を用いるという内容である.
+RELU関数は次のように表せる関数である.
+\begin{equation}
+  RELU(x)=
+  \begin{cases}
+    x & \text{if $x \geqq 0$} \\
+    0 & \text{if $x < 0$} 
+  \end{cases}
+\end{equation}
+また逆伝播は以下のようである
+\begin{equation}
+  RELU'(x) =
+  \begin{cases}
+    1 & \text{if $x \geqq 0$} \\
+    0 & \text{if $x < 0$}
+  \end{cases}
+\end{equation}
+自分の実装を示す.
+\begin{lstlisting}[caption=RELU]
+  def __init__(self):
+    pass
 
-\section{A1}
-\section{A2}
-\section{A3}
-\section{A4}
-\section{A5}
-\section{A6}
-\section{A7}
+  def prop(self, x):
+    self.input = x
+    self.B, self.M, _ = x.shape
+    return np.where(x <= 0, 0, x)
+    
+  def back(self, delta):
+    return delta * (np.where(self.input <= 0, 0, 1).reshape(self.B, self.M).T)
+\end{lstlisting}
+
+\subsection{A2}
+Dropout層を実装せよという内容である. Dropout層の定義は以下のものである.
+\begin{equation}
+  Dropout(x) = 
+  \begin{cases}
+    x & \text{(ノードが無視されない場合)} \\
+    0 & \text{(ノードが無視される場合)}
+  \end{cases}
+\end{equation}
+また逆伝播では,
+\begin{equation}
+  \begin{split}
+  \frac{En}{x} = & \frac{En}{y}\frac{y}{x}  \\= &
+  \begin{cases}
+    \frac{En}{y} & \text{(ノードが無視されない場合)} \\
+    0 & \text{(ノードが無視された場合)}
+  \end{cases}
+\end{split}
+\end{equation}
+具体的な実装の説明に移る.Dropout層のハイパーパラメータを$\rho$とする.
+このハイパーパラメータをもとにマスクされるノードの個数を定める.
+その後random.choiceによってどのノードがマスクされるかを選択し, 
+適切な処理をすればよい. またテストの際には定義にのっとり, 
+マスクはせずに定数倍を行っている.
+\begin{lstlisting}[caption=Dropout]
+  def __init__(self, phi, M):
+    self.phi = phi
+    self.msk_num = int(M*phi)
+    self.M = M
+
+  def prop(self, x):
+    B = x.shape[0]
+    M = self.M
+    drop_random = np.repeat(np.random.choice(M, self.msk_num), B).reshape(-1, B).T
+    mask_vector = np.ones((B, M))
+    mask_vector[np.repeat(np.arange(B), self.msk_num), drop_random.flatten()] = 0
+    self.msk = mask_vector.reshape(B, -1, 1)
+    return x * self.msk
+
+  def back(self, delta):
+    return delta * self.msk.reshape(self.B, self.M).transpose(1, 0)
+
+  def test(self, x):
+    return x * (1 - self.phi)
+\end{lstlisting}
+prop層のmask\_vectorの作り方が少し複雑なので, 例を挙げて説明する.
+例えば, msk\_num = 3, M = 5, B = 2の時を考える. 今drop\_randomは
+0$\sim$4から3個重複を許さずに選び, それを2回ずつ繰り返し, 次元を(3, 2)に変え転置をとるものだから, 順番に追っていくと, 
+例えば, 0, 1, 3が選ばれたとすると, 次のような形で処理が行われ, drop\_randomが得られることとなる.
+
+$$
+[0, 1, 3] \rightarrow [0, 0, 1, 1, 3, 3] \rightarrow 
+\begin{bmatrix}
+  0 & 0 \\
+  1 & 1 \\
+  3 & 3 \\
+\end{bmatrix}
+\rightarrow \begin{bmatrix}
+  0 & 1 & 3 \\
+  0 & 1 & 3 \\
+\end{bmatrix}
+$$
+続いて同様にmask\_vectorの推移を説明する. まず, (B, M)の形で全て1
+が入ったもので初期化され, その後mask\_vector[[0,0,0,1,1,1][0 1 3 0 1 3]] = 0
+となっている. つまり
+
+$$
+  mask\_vector \rightarrow \begin{bmatrix}
+    1 & 1 & 1 & 1 & 1 \\
+    1 & 1 & 1 & 1 & 1
+  \end{bmatrix} \rightarrow
+  \begin{bmatrix}
+    0 & 0 & 1 & 0 & 1 \\
+    0 & 0 & 1 & 0 & 1
+  \end{bmatrix}
+$$
+というような推移になっている. あとはこれを適切な形に変形させ, 
+入力データとアダマール積をとればあるノードの出力が0になっていることが
+簡単にわかる. また逆伝播層でも入力のshapeが違うことを除けば同様に
+アダマール積をとるだけである.
+\subsection{A3}
+Batch-Normalizationを行えというものである.
+定義式は教科書のとおりである. 
+%ToDo
+\subsection{A4}
+様々な最適化手法を試すものとなっている.
+\subsection{A5}
+まだできてません.
+\subsection{A6}
+畳み込み層の実装を行う
+\subsection{A7}
+プーリングを行う.今回はMaxPoolingを行うものとする.
 
 \section{contest}
 \subsection{Data-argumentation}
-\subsection{}
-\subsection{4層NN}
-\subsection{3層NN}
+\subsection{最終的な構成}
+\subsection{不採用群}
+\subsubsection{SAM}
+\subsubsection{半教師あり学習}
+\subsubsection{randomcrop}
+\subsubsection{randomerasing}
+\subsubsection{MixUp}
+\subsubsection{cutout}
+\subsubsection{label-smoothing}
+
 
 
 \end{document}

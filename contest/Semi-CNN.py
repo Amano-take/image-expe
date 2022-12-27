@@ -16,10 +16,10 @@ from Layer.ConAn import ConAn
 from Layer import Dropout
 from Layer.Imshow import Imshow
 from Layer.RandomArgumentation import RArg
-
 class semiCNN():
     def __init__(self):
         self.correctrate = []
+        self.teacherrate = []
 
     def study(self):
         #層に関して
@@ -30,17 +30,14 @@ class semiCNN():
         filw = 5
         phi = 0.5
         #l2
-        l2lambda = 0.00001
+        l2lambda = 0.0005
         #semi-
-        kpoint = 0.95
+        kpoint = 0.90
         
 
-        num = 100
+        num = 1000000
 
-        X_p = np.array(mnist.download_and_parse_mnist_file(
-            "train-images-idx3-ubyte.gz"))[0:10000]
-        Y_p = np.array(mnist.download_and_parse_mnist_file(
-            "train-labels-idx1-ubyte.gz"))[0:10000]
+        X_p, Y_p = ConAn.getmnist()
         Xtest = ConAn.gettest()
         contestX, contestY = ConAn.get(0, 200)
         test = Initialize.Initialize(
@@ -52,12 +49,10 @@ class semiCNN():
         labeldate = np.copy(X_p)
         label = np.copy(Y_p)
         nonlabeldate = np.copy(Xtest)
-        nonlabeldate = nonlabeldate[0:99]
-
-        epoch = (X_p.shape[0] + Xtest.shape[0]) // B
 
         rng = np.random.default_rng()
         ims = Imshow()
+        ra = RArg(0.05, 10, np.pi/5, 5/4, 4, np.pi/9, 5)
         Conv = Conv3D.Conv3D(ch, filw, imgl, B,
                              1, l2lambda, opt="MSGD")
         pooling = Pooling.Pooling()
@@ -68,7 +63,7 @@ class semiCNN():
         SofCross = Softmax_cross.Softmax_cross()
         # 途中から学習
 
-        parameters = np.load("./Parameters/contest_fin.npz")
+        parameters = np.load("./Parameters/semi_CNN0.npz")
         W2 = parameters['arr_0']
         b2 = parameters['arr_1']
         normal_beta = parameters['arr_2']
@@ -78,14 +73,17 @@ class semiCNN():
         Affine2.update(W2, b2)
         Bnormal.update(normal_beta, noraml_ganma)
         Conv.update(filter_W, fil_bias)
-
+        
+        bestcorrectrate = 0 
         for i in range(num):
+            
             if(nonlabeldate.shape[0] >= 100):
                 nepoch = nonlabeldate.shape[0] // B
+                delte_arg = np.empty((0,), dtype=int)
                 for k in range(nepoch):
                     percent = Decimal(str(k * 100 / nepoch)).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                     print('\r' + "non-label:" + str(percent) + '%', end="")
-                    batch_random_non = rng.choice(nonlabeldate.shape[0], (B,), replace=False)
+                    batch_random_non = np.arange(k*100, k*100 + 100, dtype=int)
                     img_non = nonlabeldate[batch_random_non]
                     noutC = Conv.prop(img_non.reshape(B, 1, imgl, -1))
                     # プーリング
@@ -96,7 +94,7 @@ class semiCNN():
                     # 中間層
                     noutS = relu.prop(noutN)
                     # DropOut -> 汎化性能が上がる
-                    noutD = dropout.prop(noutS)
+                    noutD = dropout.test(noutS)
                     # ~最終層
                     noutAf2 = Affine2.prop(noutD)
                     # 最終層
@@ -105,10 +103,15 @@ class semiCNN():
                     arg0, arg1, _ = np.where(nfinout > kpoint)
                     labeldate = np.vstack((labeldate, img_non[arg0]))
                     label = np.hstack((label, arg1))
-                    nonlabeldate = np.delete(nonlabeldate, arg0, axis=0)
-                    #ims.imansshow(img_non[arg0], arg1)
+                    #ims.imansshow(nonlabeldate[batch_random_non[arg0]], arg1)
+                    delte_arg = np.hstack((delte_arg, batch_random_non[arg0]))
+                nonlabeldate = np.delete(nonlabeldate, delte_arg, axis=0)
+                    
             else:
-                nonlabelB = nonlabeldate.shape[0]
+                np.savez("./Parameters/semi_CNN1", Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
+                         Conv.filter_W, Conv.bias)
+                break
+                """nonlabelB = nonlabeldate.shape[0]
                 Conv.updateB(nonlabelB)
 
                 noutC = Conv.prop(nonlabeldate.reshape(nonlabelB, 1, imgl, -1))
@@ -129,14 +132,14 @@ class semiCNN():
                 arg0, arg1, _ = np.where(nfinout > kpoint)
                 labeldate = np.vstack((labeldate, nonlabeldate[arg0]))
                 label = np.hstack((label, arg1))
-                nonlabeldate = np.delete(nonlabeldate, arg0, axis=0)
+                nonlabeldate = np.delete(nonlabeldate, arg0, axis=0)"""
     
             print('\r' + str(i+1) + "epoch:\033[0K")
             print("nonlabel=" + str(nonlabeldate.shape[0]) + ", withlabel=" + str(labeldate.shape[0]))
             
             correctnum = 0
-            for i in range(2):
-                Batch_img, ans = test.orderselect(i)
+            for l in range(2):
+                Batch_img, ans = test.orderselect(l)
                 # 画像畳み込み
                 outC = Conv.prop(Batch_img.reshape(B, 1, imgl, -1))
                 # プーリング
@@ -156,15 +159,21 @@ class semiCNN():
                 correctnum += SofCross.anserrate(ans)
             correctnum = correctnum / 2
             print("ansrate=" + str(correctnum))
+            if(bestcorrectrate <= correctnum):
+                print("更新")
+                np.savez("./Parameters/semi_CNN1", Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
+                         Conv.filter_W, Conv.bias)
+                bestcorrectrate = correctnum
             self.correctrate.append(correctnum)
 
             crossE = 0
             epoch = labeldate.shape[0] // B
-            for j in range(epoch):
+            terate = 0
+            for j in range(epoch // 10):
                 #ラベル付きで学習
-                percent = Decimal(str(j * 100 / epoch)).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                percent = Decimal(str(j * 1000 / epoch)).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                 print('\r' + "with label:" + str(percent) + '%', end="")
-                batch_random = np.random.randint(0, labeldate.shape[0], B) 
+                batch_random = rng.choice(labeldate.shape[0], (B,), replace=False) 
                 #画像取得       
                 img = np.array(labeldate[batch_random])
                 #print(before_conv.shape) -> 100 * 28 * 28
@@ -175,7 +184,8 @@ class semiCNN():
                 onehot[np.arange(answer.size), answer] = 1
                 onehot = onehot.reshape(B, C, 1)
 
-                outC = Conv.prop(img.reshape(B, 1, imgl, -1))
+                out_Ra = ra.prop2(img, i)
+                outC = Conv.prop(out_Ra.reshape(B, 1, imgl, -1))
                 # プーリング
                 outP = pooling.pooling(outC, poolw)
                 # ~中間層
@@ -188,8 +198,18 @@ class semiCNN():
                 # ~最終層
                 outAf2 = Affine2.prop(outD)
                 # 最終層
-                _ = SofCross.prop(outAf2)
+                finout = SofCross.prop(outAf2)
+                finout = finout.reshape(B, -1)
+                """
+                expected = np.max(finout, axis=1)
+                argp = np.where(expected < lpoint)
+                nonlabelargp = np.where(batch_random[argp] >= tenum)
+                nonlabeldate = np.vstack((nonlabeldate, img[nonlabelargp]))
+                labeldate = np.delete(labeldate, batch_random[nonlabelargp], axis=0)
+                label = np.delete(label, batch_random[nonlabelargp])"""
+
                 crossE = crossE + SofCross.crossEn(onehot)
+                terate += SofCross.anserrate(answer)
 
                 # 学習
                 delta_outAf2 = SofCross.back()
@@ -205,9 +225,9 @@ class semiCNN():
                 # print(delta_outP.shape) -> (ch * imgsize) * B
                 delta_outC = pooling.back(delta_outP.T)
                 _ = Conv.back_l2(delta_outC)
+            self.teacherrate.append(terate / (j + 1))
             print('\r' + "crossE=" + str(crossE / (j+1)))
-            np.savez("./Parameters/semi_CNN0", Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
-                         Conv.filter_W, Conv.bias)
+            
         
 
             
@@ -216,7 +236,10 @@ se = semiCNN()
 try:
     se.study()
 except KeyboardInterrupt:
-    l = len(se.correctrate)
+    l = len(se.teacherrate)
     y = range(l)
-    plt.plot(y, se.correctrate)
+    plt.plot(y, se.correctrate[0:l], label="contest")
+    plt.plot(y, se.teacherrate, label="teacher")
+    plt.legend()
     plt.show()
+    ims = Imshow()

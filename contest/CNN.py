@@ -25,7 +25,7 @@ def test():
     filw = 5
     phi = 0.5
 
-    parameters = np.load("./Parameters/semi_CNN.npz")
+    parameters = np.load("./Parameters/semi_CNN0.npz")
     W2 = parameters['arr_0']
     b2 = parameters['arr_1']
     normal_beta = parameters['arr_2']

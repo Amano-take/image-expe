@@ -29,10 +29,10 @@ class RArg():
         p_affin =  6 * x / ( 7 * (20 + x))
         p_musk =  x / ( 10 *  (20 + x))
         p_noise = 1 * x / (10 * (20 + x))
-        k_affin =  3 * x /(4 * (50 + x)) + 1/4
+        k_affin =  x /(2 * (200 + x)) + 1/2
         k_musk =    x /( (50 + x))
         k_noise =   x /(2 * (50 + x)) + 1/2
-        if(dice[0] < 4/5):
+        if(dice[0] < 1/2):
             theta = np.random.uniform(-self.theta, self.theta) * k_affin
             af1 = np.array([[np.cos(theta),-np.sin(theta)],
                         [np.sin(theta),np.cos(theta)]])
