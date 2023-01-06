@@ -32,7 +32,7 @@ class semiCNN():
         #l2
         l2lambda = 0.0005
         #semi-
-        kpoint = 0.90
+        kpointabs = 0.95
         
 
         num = 1000000
@@ -63,7 +63,7 @@ class semiCNN():
         SofCross = Softmax_cross.Softmax_cross()
         # 途中から学習
 
-        parameters = np.load("./Parameters/semi_CNN0.npz")
+        parameters = np.load("./Parameters/semi_CNN1.npz")
         W2 = parameters['arr_0']
         b2 = parameters['arr_1']
         normal_beta = parameters['arr_2']
@@ -76,6 +76,8 @@ class semiCNN():
         
         bestcorrectrate = 0 
         for i in range(num):
+            kpoint = (kpointabs - 0.50) * (200 - i) / 200 + 0.50
+            print(kpoint)
             
             if(nonlabeldate.shape[0] >= 100):
                 nepoch = nonlabeldate.shape[0] // B
@@ -161,7 +163,7 @@ class semiCNN():
             print("ansrate=" + str(correctnum))
             if(bestcorrectrate <= correctnum):
                 print("更新")
-                np.savez("./Parameters/semi_CNN1", Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
+                np.savez("./Parameters/semi_CNN0", Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
                          Conv.filter_W, Conv.bias)
                 bestcorrectrate = correctnum
             self.correctrate.append(correctnum)

@@ -1,4 +1,4 @@
-This is e-pTeX, Version 3.141592653-p4.0.0-220214-2.6 (utf8.sjis) (TeX Live 2022) (preloaded format=platex 2022.6.23)  23 DEC 2022 16:22
+This is e-pTeX, Version 3.141592653-p4.0.0-220214-2.6 (utf8.sjis) (TeX Live 2022) (preloaded format=platex 2022.6.23)  6 JAN 2023 16:00
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -272,14 +272,28 @@ LaTeX Font Info:    Font shape `JY1/gt/m/n' will be
 (Font)              scaled to size 8.64899pt on input line 66.
 [2
 
-] [3] [4] [5] (out/ReportA.aux) ) 
-Here is how much of TeX's memory you used:
- 4224 strings out of 478496
- 59288 string characters out of 5854316
- 480168 words of memory out of 5000000
- 22856 multiletter control sequences out of 15000+600000
- 490815 words of font info for 125 fonts, out of 8000000 for 9000
- 934 hyphenation exceptions out of 8191
- 55i,23n,62p,301b,1183s stack positions out of 10000i,1000n,20000p,200000b,200000s
+] [3]
+LaTeX Font Info:    Font shape `JT1/mc/m/n' will be
+(Font)              scaled to size 5.76599pt on input line 161.
+[4] [5] [6] [7]
+File: rep_conv.jpg Graphic file (type bmp)
+<rep_conv.jpg>
+[8] [9]
+File: pooling.jpg Graphic file (type bmp)
+<pooling.jpg>
 
-Output written on out/ReportA.dvi (5 pages, 11140 bytes).
+Overfull \hbox (24.59734pt too wide) in paragraph at lines 371--372
+ [][] 
+ []
+
+[10] [11] [12] [13] (out/ReportA.aux) ) 
+Here is how much of TeX's memory you used:
+ 4239 strings out of 478496
+ 59542 string characters out of 5854316
+ 705170 words of memory out of 5000000
+ 22865 multiletter control sequences out of 15000+600000
+ 491004 words of font info for 126 fonts, out of 8000000 for 9000
+ 934 hyphenation exceptions out of 8191
+ 55i,23n,62p,342b,1743s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+Output written on out/ReportA.dvi (13 pages, 48476 bytes).

@@ -1,11 +1,11 @@
 # Fdb version 3
-["dvipdf"] 1671780138 "out/ReportA.dvi" "out/ReportA.pdf" "out/ReportA" 1671780140
-  "out/ReportA.dvi" 1671780138 11140 737ea7360f80e1c087388909385f5d5b "latex"
+["dvipdf"] 1672988459 "out/ReportA.dvi" "out/ReportA.pdf" "out/ReportA" 1672988461
+  "out/ReportA.dvi" 1672988459 48476 de2c36d0156181ce721c44ade3d109fb "latex"
   (generated)
   "out/ReportA.pdf"
-["latex"] 1671780137 "c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/ReportA.tex" "out/ReportA.dvi" "ReportA" 1671780140
-  "ReportA.tex" 1671780135 6026 ebe3e50d17c1555f177f885fedf54d6f ""
-  "c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/ReportA.tex" 1671780135 6026 ebe3e50d17c1555f177f885fedf54d6f ""
+["latex"] 1672988456 "c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/ReportA.tex" "out/ReportA.dvi" "ReportA" 1672988461
+  "ReportA.tex" 1672988450 21344 f2cad0915cb6f62b3c0ff7cdf795a76b ""
+  "c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/ReportA.tex" 1672988450 21344 f2cad0915cb6f62b3c0ff7cdf795a76b ""
   "c:/texlive/2022/texmf-dist/fonts/map/fontname/texfonts.map" 1655963066 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm" 1655965127 468 53f854284f6afa6c36aaa2d1090ecc12 ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm" 1655965127 468 53f854284f6afa6c36aaa2d1090ecc12 ""
@@ -76,7 +76,9 @@
   "c:/texlive/2022/texmf-dist/web2c/texmf.cnf" 1655961382 40171 cdab547de63d26590bebb3baff566530 ""
   "c:/texlive/2022/texmf-var/web2c/eptex/platex.fmt" 1655966805 2863271 d6caebcb158756daa602176dee2c0b7b ""
   "c:/texlive/2022/texmf.cnf" 1655966550 853 03058b5e170dde772f22cb3779155945 ""
-  "out/ReportA.aux" 1671780138 2262 803feab2fc8fe849c47f88327484461f "latex"
+  "out/ReportA.aux" 1672988459 4673 50a8f07d0aadd78c6990574047d963e5 "latex"
+  "pooling.jpg" 1672984294 509722 92c5065a56678bdf28c997e25c500942 ""
+  "rep_conv.jpg" 1672981039 404812 9940ca643f2b910b3d53f559a81ae1bf ""
   (generated)
   "out/ReportA.aux"
   "out/ReportA.dvi"

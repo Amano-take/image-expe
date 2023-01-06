@@ -50,7 +50,7 @@ class RArg():
             image = self.translation(x, y, image)
         if(dice[2] < 1/10):
             image = self.thick_filtering(image)
-            image = self.whitenoise(image, self.wlen * k_noise)
+            image = self.whitenoise(image, self.wlen)
         if(dice[1] < 1 ):
             image = self.addnoise(image, k_musk)
             """muskdice = np.random.randint(0, 2)
@@ -192,7 +192,7 @@ class RArg():
         big_img = np.zeros((B, len*3, len*3))
         big_img[:, len:len*2, len:len*2] = img
         a, b = np.random.randint(0, 28, (2,))
-        x, y = np.random.randint(0, wlen//2, (2,))
+        x, y = np.random.randint(0, wlen//2 + 1, (2,))
         big_img[:, a+len-x:a+len+x, b+len-y:b+len+y] = np.random.randint(0, c, (2*x, 2*y))
         return big_img[:, len:len*2, len:len*2]
 
@@ -277,7 +277,7 @@ ims = Imshow.Imshow()
 #plt.show()
 
 #sque角がでかいとエラー確認
-ra = RArg(15, 18, np.pi/6, 4/5, 5, np.pi/9, 5)
+ra = RArg(0.05, 10, np.pi/5, 5/4, 4, np.pi/9, 5)
 index = 65
 shimg = np.copy(img[index])
 for i in range(100):

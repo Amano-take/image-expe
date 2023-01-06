@@ -310,5 +310,14 @@ INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tgoth10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tgoth10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmss10.tfm
+INPUT ./rep_conv.jpg
+INPUT ./rep_conv.jpg
+INPUT rep_conv.jpg
+INPUT extractbb -B cropbox -O rep_conv.jpg
+INPUT ./pooling.jpg
+INPUT ./pooling.jpg
+INPUT pooling.jpg
+INPUT extractbb -B cropbox -O pooling.jpg
 INPUT out/ReportA.aux

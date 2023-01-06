@@ -25,7 +25,7 @@ def test():
     filw = 5
     phi = 0.5
 
-    parameters = np.load("./Parameters/semi_CNN0.npz")
+    parameters = np.load("./Parameters/contest_fin.npz")
     W2 = parameters['arr_0']
     b2 = parameters['arr_1']
     normal_beta = parameters['arr_2']
@@ -50,6 +50,7 @@ def test():
     Affine2 = Affine.Affine(M, C)
     SofCross = Softmax_cross.Softmax_cross()
     total_expect = np.array([])
+    total_finout = np.empty((0, 10))
     for i in range(epoch):
         Batch_img = Ini.orderselect_test(i)
         Batch_img = Batch_img.reshape(B, 1, 28, 28)
@@ -72,5 +73,7 @@ def test():
         output_last = np.reshape(finout, (B, C))
         expect = np.argmax(output_last, axis=1)
         total_expect = np.concatenate([total_expect, expect])
+        total_finout = np.vstack([total_finout, finout.reshape(B, -1)])
     np.savetxt("./contest/predict.txt", total_expect, fmt="%.0f")
+    np.savetxt("./contest/finout.txt",total_finout.flatten())
 test()

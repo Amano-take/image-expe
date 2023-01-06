@@ -32,7 +32,7 @@ class Pooling():
         return X
 
     def back(self, delta):
-        #delta -> B * (ch* imglen)
+        #delta ->  B * (ch* imglen) 
         w = self.w
         delta_x = np.zeros((delta.size, w * w))
         delta_x[np.arange(self.arg_max.size), self.arg_max.flatten()] = delta.flatten()
