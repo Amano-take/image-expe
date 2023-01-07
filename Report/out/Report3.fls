@@ -2,8 +2,8 @@ PWD c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report
 INPUT c:/texlive/2022/texmf.cnf
 INPUT c:/texlive/2022/texmf-dist/web2c/texmf.cnf
 INPUT c:/texlive/2022/texmf-var/web2c/eptex/platex.fmt
-INPUT c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/ReportA.tex
-OUTPUT out/ReportA.log
+INPUT c:/Users/reolo/OneDrive/ドキュメント/大学課題/2022 winter/image-expe/Report/Report3.tex
+OUTPUT out/Report3.log
 INPUT c:/texlive/2022/texmf-dist/tex/platex/jsclasses/jsarticle.cls
 INPUT c:/texlive/2022/texmf-dist/tex/platex/jsclasses/jsarticle.cls
 INPUT c:/texlive/2022/texmf-dist/tex/platex/jsclasses/jsarticle.cls
@@ -104,18 +104,6 @@ INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amsfonts.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
-INPUT c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/tools/bm.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/tools/bm.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/tools/bm.sty
@@ -212,6 +200,17 @@ INPUT c:/texlive/2022/texmf-dist/tex/latex/jvlisting/jvlisting.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/jvlisting/jvlisting.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/jvlisting/jvlisting.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/jvlisting/jvlisting.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+INPUT c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
 INPUT c:/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-dvips.def
 INPUT c:/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-dvips.def
 INPUT c:/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-dvips.def
@@ -223,10 +222,10 @@ INPUT c:/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-dvips.def
 INPUT c:/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-dvips.def
 INPUT c:/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-dvips.def
 INPUT c:/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-dvips.def
-INPUT out/ReportA.aux
-INPUT out/ReportA.aux
-INPUT out/ReportA.aux
-OUTPUT out/ReportA.aux
+INPUT out/Report3.aux
+INPUT out/Report3.aux
+INPUT out/Report3.aux
+OUTPUT out/Report3.aux
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmr17.tfm
@@ -270,7 +269,7 @@ INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
-OUTPUT out/ReportA.dvi
+OUTPUT out/Report3.dvi
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmr12.tfm
@@ -279,9 +278,19 @@ INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmss12.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tgoth10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmss12.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmr9.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tgoth10.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tgoth10.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmss10.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam7.tfm
@@ -300,24 +309,20 @@ INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy7.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jis.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmr9.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tgoth10.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tgoth10.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/jis/jisg.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm
-INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmss10.tfm
-INPUT ./rep_conv.jpg
-INPUT ./rep_conv.jpg
-INPUT rep_conv.jpg
-INPUT extractbb -B cropbox -O rep_conv.jpg
-INPUT ./pooling.jpg
-INPUT ./pooling.jpg
-INPUT pooling.jpg
-INPUT extractbb -B cropbox -O pooling.jpg
-INPUT out/ReportA.aux
+INPUT ./loss.png
+INPUT ./loss.png
+INPUT loss.png
+INPUT extractbb -B cropbox -O loss.png
+INPUT ./rate.png
+INPUT ./rate.png
+INPUT rate.png
+INPUT extractbb -B cropbox -O rate.png
+INPUT ./overfitting_loss.png
+INPUT ./overfitting_loss.png
+INPUT overfitting_loss.png
+INPUT extractbb -B cropbox -O overfitting_loss.png
+INPUT ./overfitting_rate.png
+INPUT ./overfitting_rate.png
+INPUT overfitting_rate.png
+INPUT extractbb -B cropbox -O overfitting_rate.png
+INPUT out/Report3.aux

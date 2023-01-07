@@ -7,6 +7,7 @@
 % 画像
 \usepackage[dvipdfmx]{graphicx}
 \usepackage{listings,jvlisting}
+\usepackage{float}
 \lstset{
   basicstyle={\ttfamily},
   identifierstyle={\small},
@@ -65,7 +66,7 @@
   W2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, M))
   b2 = np.random.normal(loc = 0, scale = np.sqrt(1/M), size=(C, 1))
 \end{lstlisting}
-\par 
+\par
 課題2以前で説明した内容については省略する.
 新しく導入したものとして, my, epoch, numがある.
 myは学習率であり, 教科書通り0.01としている.
@@ -137,10 +138,10 @@ epochは1epochで何回繰り返すかを表しており, データ数//バッ�
   np.savez("parameter", W1, W2, b1, b2)
 \end{lstlisting}
 まず初めに説明した数だけの繰り返しを行っている.
-その後, 課題2でやった通りの方法で, 画像の適切な形への変更, 
-one-hotvecorの作成, 順伝播を行っている. そして微分を計算して, 
+その後, 課題2でやった通りの方法で, 画像の適切な形への変更,
+one-hotvecorの作成, 順伝播を行っている. そして微分を計算して,
 それに学習率をかけた分だけそれぞれのパラメータから引いている.
-\par 
+\par
 後処理としては, 1epochが終わるたびにcrossEntropyを出力, すべてのepoch
 が終われば, finishという文字列を出力し, パラメータをparameterというファイルに保存している.
 
@@ -148,7 +149,7 @@ one-hotvecorの作成, 順伝播を行っている. そして微分を計算し�
 ここでは, 逆伝播層についての詳しい説明を行う.
 \subsubsection*{ソフトマックス層}
 まずは形を確認する.ソフトマックス層に置ける入力の形は
-(B, C, 1), 出力の形も同じく(B, C, 1)である. したがって, 入力についての偏微分は, 
+(B, C, 1), 出力の形も同じく(B, C, 1)である. したがって, 入力についての偏微分は,
 $y_{ik1}^{(2)}$を3NNのバッチ内のi番目の画像に対する数字kに関する最終的な出力, $y_{ik1}$をonehot\_vectorのバッチ内i番目の数字kに
 関する値であるとすると,
 $$\frac{\partial E_n}{\partial a_{ik1}} = \frac{y_{ik1}^{(2)} - y_{ik1}}{B}$$
@@ -162,10 +163,10 @@ $$\frac{\partial E_n}{\partial a_{ik1}} = \frac{y_{ik1}^{(2)} - y_{ik1}}{B}$$
 \end{lstlisting}
 
 \subsubsection*{全結合層}
-全結合層においては, 出力の偏微分が与えられており, それに基づいて, 
+全結合層においては, 出力の偏微分が与えられており, それに基づいて,
 入力, 重み, バイアスについての偏微分を行うものとする. この理由として,
 全結合層が最後の出力層となることは考えにくいので, 一つ出力層に近い層の
-入力に関する微分値が与えられているはずだからである.\par 
+入力に関する微分値が与えられているはずだからである.\par
 では詳しい計算の手続きを述べる.
 出力の偏微分は,$\bm{y_i}$をミニバッチ内i番目の出力
 (=後ろの層の入力)
@@ -180,8 +181,8 @@ $\partial E_N / \partial Y$として与えられているものとする.
   \frac{\partial E_n}{\partial W} = \frac{\partial E_n}{\partial Y} X^T \\
   \frac{\partial E_n}{\partial \bm{b}} = rowSum (\frac{\partial E_n}{\partial Y} X^T)
 \end{gather}
-によって, それぞれの微分値が求められる.ただし, 
-$\partial E_n / \partial X$の行列の形は入力(B, X, 1)とは異なり, 
+によって, それぞれの微分値が求められる.ただし,
+$\partial E_n / \partial X$の行列の形は入力(B, X, 1)とは異なり,
 (X, B)という形になっていることに注意したい.
 実際のコードは以下の通りである.
 \begin{lstlisting}[caption = 全結合層2]
@@ -202,11 +203,11 @@ $\partial E_n / \partial X$の行列の形は入力(B, X, 1)とは異なり,
 \end{lstlisting}
 
 \subsubsection*{シグモイド関数}
-シグモイド関数への入力を$x_{ik1}$とし, 出力を$y_{ik1}$として, 
-$ \partial E_n / \partial y_{ki}$が与えられたときに, 
+シグモイド関数への入力を$x_{ik1}$とし, 出力を$y_{ik1}$として,
+$ \partial E_n / \partial y_{ki}$が与えられたときに,
 $$ \frac{\partial E_n}{\partial x_{ki}} =
-\frac{\partial y_{ki}}{\partial x_{ki}} \frac{\partial E_n}{\partial y_{ki}}=
-\frac{\partial E_n}{\partial y_{ki}} (1 - y_{ki}) y_{ki}
+  \frac{\partial y_{ki}}{\partial x_{ki}} \frac{\partial E_n}{\partial y_{ki}}=
+  \frac{\partial E_n}{\partial y_{ki}} (1 - y_{ki}) y_{ki}
 $$
 
 これを実行するコードは以下のとおりである.
@@ -225,4 +226,48 @@ $$
   ...
 \end{lstlisting}
 さらに, parameter.npzというファイルが保存されていることを確認した.
+\subsection{学習の様子}
+学習の様子をテストデータ, トレーニングデータそれぞれに対しての正解率, 又はクロスエントロピー誤差
+について注目することによって調べた. まず初めに少ないエポック数のグラフを乗せる.
+\begin{figure}[H]
+  \begin{tabular}{cc}
+    \begin{minipage}[h]{0.45\linewidth}
+      \centering
+      \includegraphics[keepaspectratio, scale = 0.4]{loss.png}
+      \caption{mini\_loss}
+    \end{minipage} &
+
+    \begin{minipage}[h]{0.45\linewidth}
+      \centering
+      \includegraphics[keepaspectratio, scale = 0.4]{rate.png}
+      \caption{mini\_rate}
+    \end{minipage}
+  \end{tabular}
+\end{figure}
+
+このグラフを見れば, うまく学習が進んでいることがわかる. テストデータに対しての方が
+成績が良くなっているのは, 訓練データに対して学習させたのちに, テストデータに対して
+パフォーマンスを図っているためである. この次にエポック数を10000にして収束を図る.
+それが次のグラフである.
+
+\begin{figure}[H]
+  \begin{tabular}{cc}
+    \begin{minipage}[h]{0.45\linewidth}
+      \centering
+      \includegraphics[keepaspectratio, scale = 0.4]{overfitting_loss.png}
+      \caption{mini\_loss}
+    \end{minipage} &
+
+    \begin{minipage}[h]{0.45\linewidth}
+      \centering
+      \includegraphics[keepaspectratio, scale = 0.4]{overfitting_rate.png}
+      \caption{mini\_rate}
+    \end{minipage}
+  \end{tabular}
+\end{figure}
+
+上の二つのグラフを見れば, 最終的に訓練データに対しての正答率は100\%に限りなく近い
+値になっていることがわかる. またその際のクロスエントロピー誤差は0.0016となった.
+一方でテストデータに対しての正答率は0.95\%を目安にとどまった. 
+
 \end{document}

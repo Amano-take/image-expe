@@ -20,6 +20,8 @@ np.random.seed(seed)
 #バッチ画像取得
 X = mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz")
 Y = mnist.download_and_parse_mnist_file("train-labels-idx1-ubyte.gz")
+X_test = np.array(mnist.download_and_parse_mnist_file("t10k-images-idx3-ubyte.gz"))
+Y_test = np.array(mnist.download_and_parse_mnist_file("t10k-labels-idx1-ubyte.gz"))
 #画像の形を取得
 img_width = X.shape[1]
 img_height = X.shape[2]
@@ -28,6 +30,10 @@ img_size = X[0].size
 epoch = X.shape[0] // B
 #エポック繰り返し
 num = 30
+val_rate = []
+train_rate = []
+val_loss = []
+train_loss = []
 
 #ランダムな重みを作成
 W1 = np.random.normal(loc = 0, scale = np.sqrt(1/img_size), size=(M, img_size))
@@ -43,14 +49,18 @@ b1 = parameters['arr_2']
 b2 = parameters['arr_3']"""
 
 
-for i in range(5):
+for i in range(10000):
     #1エポック
     crossE = 0
+    ansnum = 0 
+    crossE_val = 0
+    ansnum_val = 0
+
     for j in range(epoch):
         #バッチサイズだけランダムに0~59999を選択
         batch_random = np.random.randint(0, 60000, B)
         #画像取得       
-        before_conv = np.array(X[batch_random])
+        before_conv = np.array(X[batch_random]) / 255
         #print(before_conv.shape) -> 100 * 28 * 28
         #正解を取得
         answer = np.array(Y[batch_random])
@@ -79,6 +89,8 @@ for i in range(5):
 
         #クロスエントロピー
         crossE += (-1/B)* np.sum(onehot * np.log(output_last))
+        expect = np.argmax(output_last.reshape(B, -1), axis= 1)
+        ansnum += np.count_nonzero(np.equal(expect.flatten(), answer.flatten()))
 
         #微分
         #ソフト+クロスエントロピー
@@ -103,7 +115,52 @@ for i in range(5):
         W2 = W2 - my * delta_W2
         b2 = b2 - my * delta_b2
     print(crossE / epoch)
+    train_loss.append(crossE / epoch)
+    train_rate.append(ansnum / (epoch * B))
 
+    for k in range(X_test.shape[0] // B):
+        before_conv = X_test[k*100:k*100 + 100] / 255
+        answer = Y_test[k*100:k*100 + 100]
+        onehot = np.zeros((answer.size, 10))
+        onehot[np.arange(answer.size), answer] = 1
+        onehot = onehot.reshape(B, C, 1)
+
+        #行列の変形
+        img = before_conv.reshape((B, img_size, 1))
+        
+        #中間層への入力
+        input1 = np.matmul(W1, img) + b1
+        #中間層の出力
+        
+        output1 = 1/(1 + np.exp(-1 * input1))
+
+        #最終層への入力
+        input2 = np.matmul(W2, output1) + b2
+        #print(input2.shape) -> 100 * 10 * 1
+        #最終層の出力
+        alpha = np.repeat(input2.max(axis = 1), C, axis= 1).reshape(B, C, 1)
+        sumexp = np.repeat(np.sum(np.exp(input2 - alpha), axis=1), 10, axis=1).reshape(B, C, 1)
+        #print(sumexp.shape) -> 100 * 10 * 1
+        output_last = np.exp(input2 - alpha) / sumexp
+
+        #クロスエントロピー
+        crossE_val += (-1/B)* np.sum(onehot * np.log(output_last))
+        expect = np.argmax(output_last.reshape(B, -1), axis= 1)
+        ansnum_val += np.count_nonzero(np.equal(expect.flatten(), answer.flatten()))
+
+    val_loss.append(crossE_val / (k + 1))
+    val_rate.append(ansnum_val / ((k + 1) * B))
+
+y = len(val_loss)
+plt.plot(range(y), train_loss[0:y], label="train_loss")
+plt.plot(range(y), val_loss, label="validation_loss")
+plt.legend()
+plt.show()
+
+plt.plot(range(y), train_rate[0:y], label="train_rate")
+plt.plot(range(y), val_rate, label="validation_rate")
+plt.legend()
+plt.show()
 np.savez("./Parameters/parameter_assig3", W1, W2, b1, b2)
 
 
