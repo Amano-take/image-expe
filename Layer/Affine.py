@@ -29,6 +29,9 @@ class Affine():
         elif(opt == "ADSGD"):
             self.Wad = MomentumSGD.ADSGD(self.W)
             self.bad = MomentumSGD.ADSGD(self.b)
+        elif(opt=="RMSProp"):
+            self.Wad = Adam.RMSProp(self.W)
+            self.bad = Adam.RMSProp(self.b)
 
     def test(self, W, b, x):
         return np.matmul(W, x) + b
@@ -82,6 +85,9 @@ class Affine():
         elif(opt == "ADSGD"):
             self.Wad = MomentumSGD.ADSGD(self.W)
             self.bad = MomentumSGD.ADSGD(self.b)
+        elif(opt=="RMSProp"):
+            self.Wad = Adam.RMSProp(self.W)
+            self.bad = Adam.RMSProp(self.b)
 
     def back_ADSGD(self, dy, k):
         delta_x = np.matmul(self.W.T, dy)

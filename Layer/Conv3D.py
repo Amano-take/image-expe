@@ -31,6 +31,9 @@ class Conv3D():
         elif(opt=="ADSGD"):
             self.filAdam = MomentumSGD.ADSGD(self.filter_W)
             self.biAdam = MomentumSGD.ADSGD(self.bias)
+        elif(opt=="RMSProp"):
+            self.filAdam = Adam.RMSProp(self.filter_W)
+            self.biAdam = Adam.RMSProp(self.bias)
     
     #使う予定なし
     def updateB(self, newB):
@@ -112,6 +115,9 @@ class Conv3D():
         elif(opt=="ADSGD"):
             self.filAdam = MomentumSGD.ADSGD(self.filter_W)
             self.biAdam = MomentumSGD.ADSGD(self.bias)
+        elif(opt=="RMSProp"):
+            self.filAdam = Adam.RMSProp(self.filter_W)
+            self.biAdam = Adam.RMSProp(self.bias)
 
     def SAM_back1(self, delta):
         delta = delta.transpose(1, 0, 2, 3).reshape(self.K, -1)

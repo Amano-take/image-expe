@@ -26,6 +26,9 @@ class BatchNormalize():
         elif(opt == "ADSGD"):
             self.betaAdam = MomentumSGD.ADSGD(self.beta)
             self.ganmaAdam = MomentumSGD.ADSGD(self.ganma)
+        elif(opt == "RMSProp"):
+            self.betaAdam = Adam.RMSProp(self.beta)
+            self.ganmaAdam = Adam.Adam(self.ganma)
         return 
 
     def prop(self, x):
@@ -80,6 +83,9 @@ class BatchNormalize():
         elif(opt == "ADSGD"):
             self.betaAdam = MomentumSGD.ADSGD(self.beta)
             self.ganmaAdam = MomentumSGD.ADSGD(self.ganma)
+        elif(opt == "RMSProp"):
+            self.betaAdam = Adam.RMSProp(self.beta)
+            self.ganmaAdam = Adam.Adam(self.ganma)
         return 
 
     def SAM_back1(self, delta):

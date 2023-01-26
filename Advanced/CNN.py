@@ -2,7 +2,7 @@ import mnist
 import sys
 import os
 import matplotlib.pyplot as plt
-
+from decimal import Decimal, ROUND_HALF_UP
 from pylab import cm
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from Layer import BatchNormalize
@@ -44,14 +44,14 @@ class test():
         self.poolw = 7
         # 8, 16, 4, 32　をためしてみる ->それほど変わらず,,
         #ちょうどいいのは16, 32
-        self.ch = 32
+        self.ch = 64
         # 小さいほうがいいらしい？？
-        self.filw = 5
+        self.filw = 3
         self.phi = 0.4
         # 逆効果
         self.smoothp = 0
         # l2正則化
-        self.l2lambda = 0.001
+        self.l2lambda = 0.0001
         self.testcorrectrate = []
         self.teachercorrectrate = []
         self.ims = Imshow()
@@ -74,17 +74,20 @@ class test():
             "t10k-labels-idx1-ubyte.gz"))
         X = np.vstack((X_p, Xtest))
         Y = np.hstack((Y_p, Ytest))
+        X = X / 255.0
+        """X = ConAn.gettest()
+        Y = np.load("./contest/finout.npy")"""
         imgl = X.shape[1]
         B = self.B
         M = self.ch * (imgl // self.poolw) * (imgl // self.poolw)
         C = self.C
         Ini = Initialize.Initialize(X, Y, B, C, self.smoothp)
-        # 過学習制御用　-> 始め200個を使ってることになりますね(´;ω;｀)
         Xtest, Ytest = ConAn.get(0, 200)
+        Xtest = Xtest / 255.0
 
         # 学習に関して -> 過学習を検知して自動で止まるので大きく
         # 実際に優秀なパラを得たのは手動のearly-stoppingでです
-        num = 10000
+        num = 1000
         epoch = X.shape[0] // B
         # 初期化
         crossE = 0
@@ -103,7 +106,6 @@ class test():
         Affine2 = Affine.Affine(M, C, self.l2lambda, "MSGD")
         SofCross = Softmax_cross.Softmax_cross()
         # 途中から学習
-
         """parameters = np.load("./Parameters/contest_fin.npz")
         W2 = parameters['arr_0']
         b2 = parameters['arr_1']
@@ -118,22 +120,25 @@ class test():
             precrossE = crossE
             crossE = 0
             teachansrate = 0
-            for j in range(epoch//20):
-                print('\r' + str(j * 100 / (epoch//20)) + '%', end="")
+            for j in range(epoch):
+                percent = Decimal(str(j * 100 / epoch)).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                print('\r' + str(percent) + '%', end="")
                 Batch_img, onehot, ans = Ini.randomselect()
                 # argumentation
                 out_Ra = ra.prop2(Batch_img, 120)
                 # 画像畳み込み
                 outC = Conv.prop(out_Ra.reshape(self.B, 1, imgl, -1))
                 # プーリング
-                outP = pooling.pooling(outC, self.poolw)
+                outP0 = pooling.pooling(outC, self.poolw)
+                #outP1 = pooling.pooling(outC, 2)
+                #outP = np.concatenate((outP0.reshape(outP0.shape[0], -1, 1), outP1.reshape(outP1.shape[0], -1, 1)), axis=1)
                 # 形変える
-                outP = outP.reshape(outP.shape[0], -1, 1)
+                #outP = outP.reshape(outP.shape[0], -1, 1)
                 # ~中間層
                 # 正規化
-                outN = Bnormal.prop(outP)
+                #outN = Bnormal.prop(outP)
                 # 中間層
-                outS = relu.prop(outN)
+                outS = relu.prop(outP0.reshape(outP0.shape[0], -1, 1))
                 # DropOut -> 汎化性能が上がる
                 outD = dropout.prop(outS)
                 # ~最終層
@@ -153,10 +158,10 @@ class test():
                 # print() -> M * B
                 delta_outN = relu.back(delta_outS)
                 # print(delta_outN.shape) -> M * B
-                delta_outP = Bnormal.back_l2(delta_outN)
+                #delta_outP = Bnormal.back_l2(delta_outN)
                 # print(delta_outAf1.shape) -> M * B
                 # print(delta_outP.shape) -> (ch * imgsize) * B
-                delta_outC = pooling.back(delta_outP.T)
+                delta_outC = pooling.back(delta_outN.T)
                 _ = Conv.back_l2(delta_outC)
 
             # 1epoch終了
@@ -180,9 +185,9 @@ class test():
                 # 形変える
                 outP = outP.reshape(outP.shape[0], -1, 1)
                 # 正規化
-                outN = Bnormal.prop(outP)
+                #outN = Bnormal.prop(outP)
                 # 中間層
-                outS = relu.prop(outN)
+                outS = relu.prop(outP)
                 # ドロップアウト
                 outD = dropout.test(outS)
                 # ~最終層
@@ -196,7 +201,7 @@ class test():
             print(correctnum)
             if(correctnum >= precorrectnum):
                 print("更新!!")
-                np.savez("./Parameters/CNN", Affine2.W, Affine2.b, Bnormal.beta, Bnormal.ganma,
+                np.savez("./Parameters/CNN", Affine2.W, Affine2.b, #Bnormal.beta, Bnormal.ganma,
                          Conv.filter_W, Conv.bias)
                 np.savez("./Parameters/finout", finout)
                 precorrectnum = correctnum

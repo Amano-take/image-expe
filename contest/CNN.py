@@ -20,7 +20,7 @@ def test():
     #層に関して
     B = 100
     C = 10
-    poolw = 7
+    poolw = 2
     ch = 32
     filw = 5
     phi = 0.5
@@ -56,6 +56,7 @@ def test():
         Batch_img = Batch_img.reshape(B, 1, 28, 28)
         #画像畳み込み
         outC = Conv.test(Batch_img, filter_W, fil_bias)
+        ims.imshow(outC[0])
         #プーリング
         outP = pooling.pooling(outC, poolw)
         outP = outP.reshape(outP.shape[0], -1, 1)
@@ -75,5 +76,4 @@ def test():
         total_expect = np.concatenate([total_expect, expect])
         total_finout = np.vstack([total_finout, finout.reshape(B, -1)])
     np.savetxt("./contest/predict.txt", total_expect, fmt="%.0f")
-    np.savetxt("./contest/finout.txt",total_finout.flatten())
 test()

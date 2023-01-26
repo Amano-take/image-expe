@@ -24,3 +24,20 @@ class Adam():
             (np.power(v_head, 1/2) + Adam.eps)
         return self.para
         
+
+class RMSProp():
+    #Adamパラメータ
+    mu = 0.001
+    rho = 0.9
+    eps = 1e-8
+    def __init__(self, para):
+        #Adam学習用
+        self.h = 0
+        #更新するパラメータ
+        self.para = para
+
+    def update(self, delta):
+        self.h = RMSProp.rho * self.h + (1 - RMSProp.rho) * delta * delta
+        self.para = self.para - RMSProp.mu * (1 / (np.power(self.h, 1/2) + RMSProp.eps) ) * delta
+        return self.para
+        

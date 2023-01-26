@@ -1,4 +1,8 @@
 import numpy as np
+import mnist
+import matplotlib.pyplot as plt
+from pylab import cm
+import Imshow
 
 
 class Pooling():
@@ -51,10 +55,15 @@ class Pooling():
 
 
 """
+ims = Imshow.Imshow()
 poo = Pooling()
-
-print(poo.pooling(np.arange(96).reshape(2, 3, 4, 4), 2))
+X = np.array(mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz"))
+img = X[0:12].reshape(12, 1, 28, 28)
+plt.imshow( img[4].reshape(28, 28), cmap = cm.gray)
+plt.show()
+plt.imshow( poo.pooling(img, 7)[4].reshape(4, 4), cmap = cm.gray)
+plt.show()
 delta = np.arange(24).reshape(3 *4, 2)
-print(delta)
-print(poo.back(delta))
-"""
+#print(delta)
+#print(poo.back(delta))
+#"""

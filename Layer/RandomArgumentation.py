@@ -268,16 +268,26 @@ class RArg():
         return np.where(Y>=255, 255, Y)
 
 
-#
 """
+ra = RArg(0.05, 10, np.pi/5, 5/4, 4, np.pi/9, 5)
 X = np.array(mnist.download_and_parse_mnist_file("train-images-idx3-ubyte.gz"))
-img = X[0:100].reshape(100, 28, 28)
+img = X[0:4].reshape(4, 28, 28)
+theta = np.pi/3
+af = np.array([[np.cos(theta),-np.sin(theta)],
+                        [np.sin(theta),np.cos(theta)]])
+image = ra.thick_filtering(img)
+theta = np.pi/2
+af = np.array([[np.cos(theta),-np.sin(theta)],
+                        [np.sin(theta),np.cos(theta)]])
+image2 = ra.thick_filtering(img)
+convimg = np.vstack((img, image, image2))
 ims = Imshow.Imshow()
+ims.imshow(convimg)
 #plt.imshow(img[0], cmap = cm.gray)
 #plt.show()
 
 #sque角がでかいとエラー確認
-ra = RArg(0.05, 10, np.pi/5, 5/4, 4, np.pi/9, 5)
+
 index = 65
 shimg = np.copy(img[index])
 for i in range(100):

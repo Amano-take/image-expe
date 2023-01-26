@@ -33,6 +33,15 @@ class Initialize():
         onehot = self.onehot(answer)
         return Batch_img, onehot, answer
 
+    def randomselect_withonehot(self):
+        batch_random = np.random.randint(0, self.X.shape[0], self.B)
+        # 画像取得
+        Batch_img = np.array(self.X[batch_random])
+        # 正解を取得
+        onehot = np.array(self.Y[batch_random])
+
+        return Batch_img, onehot
+
     def randomselect_with_arg(self):
         batch_random = np.random.randint(0, self.X.shape[0], self.B)
         # 画像取得
