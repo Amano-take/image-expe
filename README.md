@@ -1,6 +1,5 @@
 # image-expe  
-Assig  
-課題のフォルダーが入っているページです  
+
 Layer  
 各種レイヤープラス様々な処理が入っています  
 Advanced  
